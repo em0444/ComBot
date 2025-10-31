@@ -15,6 +15,7 @@ TexturedBackground {
 TexturedBackgroundLight {
 }
 RectangleArena {
+  floorSize 10 10 
 }
 Tiago++ {
 }
