@@ -4,7 +4,12 @@
 .idea
 .idea/*
 worlds/.combot.wbproj
+uv.lock
 .python-version
+
+#These are just library imports from /usr/local/webots, they should be properly linked dynamically by setting an environment variable (or you can just run inside webots instead of as an <extern>, but I just copied them over so intellisense works. Should be ignored.
+controller
+controller/*
 
 # Automaticaly added
 # Created by https://www.toptal.com/developers/gitignore/api/windows,macos,linux,intellij,pycharm,visualstudiocode
