@@ -1,6 +1,10 @@
 # Manually added
 
 .combot.wbproj
+.idea
+.idea/*
+worlds/.combot.wbproj
+.python-version
 
 # Automaticaly added
 # Created by https://www.toptal.com/developers/gitignore/api/windows,macos,linux,intellij,pycharm,visualstudiocode
