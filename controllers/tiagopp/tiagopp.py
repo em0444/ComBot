@@ -12,7 +12,7 @@ robot = Robot()
 
 timestep = int(robot.getBasicTimeStep())
 
-initialise_motors()
+initialise_motors(robot)
 
 # Main loop:
 # - perform simulation steps until Webots is stopping the controller
