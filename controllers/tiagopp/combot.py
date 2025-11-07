@@ -1,3 +1,5 @@
+from typing import List
+
 from controller import Robot
 
 
@@ -15,3 +17,7 @@ class Combot(Robot):
         super().__init__()
         print(self)
         self._initialized = True
+
+    def get_position(self) -> List[float]:
+        from localisation import get_position
+        return get_position(self)
