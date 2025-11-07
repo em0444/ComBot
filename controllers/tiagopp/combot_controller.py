@@ -1,22 +1,21 @@
 """tiagopp controller."""
 
-from controller import Robot, Motor
-from typing import cast
-
 from controller import wb as c_webots_api #The wb package gives you all the C-like methods, but the controller package wraps most of them in nicer-to-use classes.
 from controllers.tiagopp.initialisation import initialise_motors
+from controllers.tiagopp.combot import Combot
 
 wb = c_webots_api.wb
 
-robot = Robot()
+combot: Combot = Combot()
+print(combot)
 
-timestep = int(robot.getBasicTimeStep())
+timestep = int(combot.getBasicTimeStep())
 
-initialise_motors(robot)
+initialise_motors()
 
 # Main loop:
 # - perform simulation steps until Webots is stopping the controller
-while robot.step(timestep) != -1:
+while combot.step(timestep) != -1:
     # Read the sensors:
     # Enter here functions to read sensor data, like:
     #  val = ds.getValue()
