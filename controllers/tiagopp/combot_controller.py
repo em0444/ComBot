@@ -7,7 +7,7 @@ from controllers.tiagopp.combot import Combot
 wb = c_webots_api.wb
 
 combot: Combot = Combot()
-print(combot)
+combot.get_position()
 
 timestep = int(combot.getBasicTimeStep())
 
