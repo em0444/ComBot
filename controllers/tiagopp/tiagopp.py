@@ -2,8 +2,8 @@
 
 from controller import wb as c_webots_api, \
     Motor  # The wb package gives you all the C-like methods, but the controller package wraps most of them in nicer-to-use classes.
-from controllers.tiagopp.initialisation import initialise_motors
-from controllers.tiagopp.combot import Combot
+from initialisation import initialise_motors
+from combot import Combot
 
 wb = c_webots_api.wb
 
