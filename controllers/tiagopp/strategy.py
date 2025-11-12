@@ -1,16 +1,22 @@
 from controllers.tiagopp.combot import Combot
 
+combot = Combot()
+
 def decideMove():
-    currentPosition = Combot.get_position()
-    currentArmPosition = Combot.get_arm_position()
-    currentSwordPosition = Combot.get_sword_position()
-    enemeyPosition = Combot.get_enemey_position()
-    enemeyArmPosition = Combot.get_enemey_arm_position()
-    enemeySwordPosition = Combot.get_enemey_sword_position()
+    currentPosition = combot.get_position()
+    currentArmPosition = combot.get_arm_position()
+    currentSwordPosition = combot.get_sword_position()
+    enemyPosition = combot.get_enemy_position()
+    enemyArmPosition = combot.get_enemy_arm_position()
+    enemySwordPosition = combot.get_enemy_sword_position()
     optimalMove = strategy1
 
-    return optimalMove(currentPosition,currentArmPosition,currentSwordPosition,enemeyPosition,enemeyArmPosition,enemeySwordPosition)
+    return optimalMove(currentPosition,currentArmPosition,currentSwordPosition,enemyPosition,enemyArmPosition,enemySwordPosition)
 
+def distance(vec1,vec2):
+    return ((vec1[0]-vec2[0])^2 + (vec1[1]-vec2[1])^2 + (vec1[2]-vec2[2])^2)^0.5
 
-def strategy1():
+def strategy1(currentPosition,currentArmPosition,currentSwordPosition,enemyPosition,enemyArmPosition,enemySwordPosition):
+    if distance(currentPosition,enemyPosition) < 1:
+        return None
     return None
