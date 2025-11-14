@@ -21,17 +21,17 @@ class Combot(Robot):
         from localisation import get_position
         return get_position()
     
-    def get_arm_position():
+    def get_arm_position(self):
         raise NotImplementedError()
     
-    def get_sword_position():
+    def get_sword_position(self):
         raise NotImplementedError()
     
-    def get_enemy_position():
+    def get_enemy_position(self):
         raise NotImplementedError()
     
-    def get_enemy_arm_position():
+    def get_enemy_arm_position(self):
         raise NotImplementedError()
     
-    def get_enemy_sword_position():
+    def get_enemy_sword_position(self):
         raise NotImplementedError()
