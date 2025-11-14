@@ -1,4 +1,4 @@
-"""tiagopp controller."""
+"""combot controller."""
 
 from controller import wb as c_webots_api, \
     Motor  # The wb package gives you all the C-like methods, but the controller package wraps most of them in nicer-to-use classes.

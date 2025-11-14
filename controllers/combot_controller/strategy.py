@@ -1,4 +1,4 @@
-from controllers.tiagopp.combot import Combot
+from controllers.combot_controller.combot import Combot
 
 combot = Combot()
 
