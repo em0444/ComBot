@@ -19,5 +19,5 @@ RectangleArena {
 }
 Tiago++ {
   name "ComBot"
-  controller "tiagopp"
+  controller "combot_controller"
 }
