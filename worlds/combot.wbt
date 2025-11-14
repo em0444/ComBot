@@ -15,8 +15,9 @@ TexturedBackground {
 TexturedBackgroundLight {
 }
 RectangleArena {
-  floorSize 10 10 
+  floorSize 10 10
 }
 Tiago++ {
+  name "ComBot"
+  controller "tiagopp"
 }
-

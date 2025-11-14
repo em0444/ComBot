@@ -1,7 +1,7 @@
 from typing import List
 
 from controller import PositionSensor, DistanceSensor
-from controllers.tiagopp.combot import Combot
+from combot import Combot
 
 combot = Combot()
 
