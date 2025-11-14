@@ -2,6 +2,13 @@ from controllers.tiagopp.combot import Combot
 
 combot = Combot()
 
+class Actions:
+    def __init__(self, actionType, endPosition, complete):
+        self.actionType = actionType
+        self.endPosition = endPosition
+        self.complete = complete
+
+
 def decideMove():
     currentPosition = combot.get_position()
     currentArmPosition = combot.get_arm_position()
@@ -18,5 +25,5 @@ def distance(vec1,vec2):
 
 def strategy1(currentPosition,currentArmPosition,currentSwordPosition,enemyPosition,enemyArmPosition,enemySwordPosition):
     if distance(currentPosition,enemyPosition) < 1:
-        return None
-    return None
+        return Actions("Attack",enemyPosition,False)
+    return Actions("EnGarde",currentSwordPosition,True)
