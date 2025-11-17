@@ -43,7 +43,6 @@ def check_manual_fencing_action(key_code):
     elif key_code == 82:  # R (En Guard)
         en_garde()
 
-# combot.get_position()
 
 timestep = int(combot.getBasicTimeStep())
 
