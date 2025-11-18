@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 from controller import Robot
 
@@ -15,11 +15,12 @@ class Combot(Robot):
         if self._initialized:
             return
         super().__init__()
+        from controllers.combot_controller import localisation
+        self.localisation = localisation.Localisation(num_particles=50)
         self._initialized = True
 
-    def get_position(self) -> List[float]:
-        from localisation import get_position
-        return get_position()
+    def get_position(self) -> Tuple[float, float]:
+        return self.localisation.get_position()
     
     def get_arm_position(self):
         raise NotImplementedError()

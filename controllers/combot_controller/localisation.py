@@ -1,4 +1,5 @@
 import math
+import random
 from time import sleep
 from typing import List, Tuple
 
@@ -10,14 +11,21 @@ from controller.sensor import Sensor
 
 combot = Combot()
 
-def get_position() -> List[float]:
+class Localisation:
+    def __init__(self, num_particles):
+        # distance_sensors: List[DistanceSensor] = [device for device in combot.devices.values() if isinstance(device, DistanceSensor)]
+        self.num_particles = num_particles
 
-    # distance_sensors: List[DistanceSensor] = [device for device in combot.devices.values() if isinstance(device, DistanceSensor)]
+        self.lidar_array = LidarArray()
+        self.wheel_odometry = WheelOdometry()
 
-    lidar_array = LidarArray()
-    odometry_wheel_values = WheelOdometry()
+        self.particles = [Position.generate_random_position() for _ in range(num_particles)]
 
-    # raise NotImplementedError()
+    def get_position(self, num_particles=50) -> Tuple[float, float]:
+
+        new_states_from_odometry = [self.wheel_odometry.add_odometry_with_uncertainty(particle) for particle in self.particles]
+
+        raise NotImplementedError()
 
 class Position:
     max_x, max_y, min_x, min_y = 5, 5, -5, -5
@@ -28,6 +36,9 @@ class Position:
     def is_possible_position(self, x: float, y: float) -> bool:
         return (self.min_x < x < self.max_x) and (self.min_y < y < self.max_y)
 
+    @staticmethod
+    def generate_random_position():
+        return Position(random.uniform(Position.min_x, Position.max_x), random.uniform(Position.min_y, Position.max_y))
 
 class WheelOdometry:
     # Moving striaght into the wall gives us values 43, 43, when we reach it. Dividing by actual distance travelled gets us a (rounded) scale factor of 10.
@@ -43,6 +54,10 @@ class WheelOdometry:
 
     def get_sensor_right_position(self) -> float:
         return self.right_sensor.value / 10
+
+    def add_odometry_with_uncertainty(self, particle: Position) -> Position:
+        pass
+
 
 class LidarArray:
     """
