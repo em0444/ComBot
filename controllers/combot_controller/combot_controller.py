@@ -64,6 +64,7 @@ while combot.step(timestep) != -1:
 
     check_keyboard(key)
     check_manual_fencing_action(key)
+    combot.get_position()
 
     pass
 

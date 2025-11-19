@@ -4,15 +4,17 @@ from time import sleep
 from typing import List, Tuple
 
 from controller import PositionSensor, DistanceSensor, Lidar
-from combot import Combot
 import matplotlib.pyplot as plt
 
 from controller.sensor import Sensor
+from controllers.combot_controller.combot import Combot
 
-combot = Combot()
+global combot
 
 class Localisation:
-    def __init__(self, num_particles):
+    def __init__(self, combot_obj: Combot, num_particles=5):
+        global combot
+        combot = combot_obj
         # distance_sensors: List[DistanceSensor] = [device for device in combot.devices.values() if isinstance(device, DistanceSensor)]
         self.num_particles = num_particles
 
@@ -21,11 +23,13 @@ class Localisation:
 
         self.particles = [Position.generate_random_position() for _ in range(num_particles)]
 
-    def get_position(self, num_particles=50) -> Tuple[float, float]:
 
-        new_states_from_odometry = [self.wheel_odometry.add_odometry_with_uncertainty(particle) for particle in self.particles]
+    def get_position(self, num_particles=5) -> Tuple[float, float]:
 
-        raise NotImplementedError()
+        self.wheel_odometry.add_odometry_with_uncertainty(self.particles)
+        print(self.particles)
+
+        # raise NotImplementedError()
 
 class Position:
     max_x, max_y, min_x, min_y = 5, 5, -5, -5
@@ -42,21 +46,37 @@ class Position:
 
 class WheelOdometry:
     # Moving striaght into the wall gives us values 43, 43, when we reach it. Dividing by actual distance travelled gets us a (rounded) scale factor of 10.
-    # Interestingly, performing a full spin gives us values 18, -18.
     def __init__(self):
         self.left_sensor: PositionSensor = [device for device in combot.devices.values() if device.name == "wheel_left_joint_sensor"][0]
         self.right_sensor: PositionSensor = [device for device in combot.devices.values() if device.name == "wheel_right_joint_sensor"][0]
         self.left_sensor.enable(int(combot.getBasicTimeStep()))
         self.right_sensor.enable(int(combot.getBasicTimeStep()))
 
-    def get_sensor_left_position(self) -> float:
-        return self.left_sensor.value / 10
+        self.stored_odometry: Tuple[float, float] = self.get_current_odometry()
+        self.stored_heading: float = 0.0
+        self.axle_radius: float = 0.25 # TODO figure out what this value actually is
 
-    def get_sensor_right_position(self) -> float:
-        return self.right_sensor.value / 10
+    def get_current_odometry(self) -> Tuple[float, float]:
+        return (self.left_sensor.value / 10, self.right_sensor.value / 10)
 
-    def add_odometry_with_uncertainty(self, particle: Position) -> Position:
-        pass
+    def get_odometry_change_since_last_query(self) -> Tuple[float, float]:
+        last_x, last_y = self.stored_odometry
+        current_x, current_y = self.get_current_odometry()
+        self.stored_odometry = (current_x, current_y)
+        return (current_x - last_x, current_y - last_y)
+
+    def add_odometry_with_uncertainty(self, particles: List[Position]):
+        # Apply equations from week 2 to get robot's change in x / y
+        (delta_sl, delta_sr) = self.get_odometry_change_since_last_query()
+        delta_theta = (delta_sl + delta_sr) / self.axle_radius
+        self.stored_heading += delta_theta
+        delta_s = (delta_sl + delta_sr) / 2
+        delta_x = delta_s * math.cos(self.stored_heading + delta_theta / 2)
+        delta_y = delta_s * math.sin(self.stored_heading + delta_theta / 2)
+
+        for particle in particles:
+            particle.x += delta_x + random.gauss(0, 0.01)
+            particle.y += delta_y + random.gauss(0, 0.01)
 
 
 class LidarArray:
@@ -70,7 +90,12 @@ class LidarArray:
     """
     def __init__(self):
         self.lidar_sensor: Lidar = [device for device in combot.devices.values() if isinstance(device, Lidar)][0]
+        print(self.lidar_sensor.name)
+        self.lidar_sensor.__init__("")
+        sleep(1)
         self.lidar_sensor.enable(int(combot.getBasicTimeStep()))
+        sleep(1)
+        self.range_image = self.lidar_sensor.getRangeImageArray()
         self.range_image: List[float] = self.lidar_sensor.getRangeImage()
 
     def plot(self):

@@ -15,11 +15,13 @@ class Combot(Robot):
         if self._initialized:
             return
         super().__init__()
-        from controllers.combot_controller import localisation
-        self.localisation = localisation.Localisation(num_particles=50)
+        self.localisation = None
         self._initialized = True
 
     def get_position(self) -> Tuple[float, float]:
+        if self.localisation is None:
+            from controllers.combot_controller.localisation import Localisation
+            self.localisation = Localisation(combot_obj=self)
         return self.localisation.get_position()
     
     def get_arm_position(self):
