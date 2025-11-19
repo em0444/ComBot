@@ -29,9 +29,6 @@ class Localisation:
     def get_position(self) -> Tuple[float, float]:
 
         self.wheel_odometry.add_odometry_with_uncertainty(self.particles)
-        # if self.i % 10 == 0:
-        #     print(self.particles[0].x, self.particles[0].y)
-        # self.i+=1
 
         return (0,0)
 
@@ -60,7 +57,8 @@ class WheelOdometry:
 
         self.stored_odometry: Tuple[float, float] = self.get_current_odometry()
         self.stored_heading: float = 0.0
-        self.axle_radius: float = 0.25 # TODO figure out what this value actually is
+        self.axle_radius: float = 0.4 # TODO double check this value
+        self.wheel_scale_factor = 0.1
 
     def get_current_odometry(self) -> Tuple[float, float]:
         return self.left_sensor.value, self.right_sensor.value
@@ -69,7 +67,7 @@ class WheelOdometry:
         last_left, last_right = self.stored_odometry
         current_left, current_right = self.get_current_odometry()
         self.stored_odometry = (current_left, current_right)
-        return current_left - last_left, current_right - last_right
+        return (current_left - last_left) * self.wheel_scale_factor, (current_right - last_right) * self.wheel_scale_factor
 
     def add_odometry_with_uncertainty(self, particles: List[Position]):
         # Apply equations from week 2 to get robot's change in x / y
@@ -80,7 +78,6 @@ class WheelOdometry:
         delta_x = delta_s * math.cos(self.stored_heading + delta_theta / 2)
         delta_y = delta_s * math.sin(self.stored_heading + delta_theta / 2)
 
-        print(delta_sl, delta_sr, delta_x, delta_y)
         for particle in particles:
             particle.x += delta_x + random.gauss(0, 0.005)
             particle.y += delta_y + random.gauss(0, 0.005)
