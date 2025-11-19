@@ -3,10 +3,9 @@ import random
 from time import sleep
 from typing import List, Tuple
 
-from controller import PositionSensor, DistanceSensor, Lidar
+from controller import PositionSensor, Lidar
 import matplotlib.pyplot as plt
 
-from controller.sensor import Sensor
 from controllers.combot_controller.combot import Combot
 
 global combot
@@ -21,13 +20,20 @@ class Localisation:
         self.lidar_array = LidarArray()
         self.wheel_odometry = WheelOdometry()
 
-        self.particles = [Position.generate_random_position() for _ in range(num_particles)]
+        initial_random_particles = [Position.generate_random_position() for _ in range(num_particles)]
+
+        self.particles = initial_random_particles
+        self.i = 0
 
 
-    def get_position(self, num_particles=5) -> Tuple[float, float]:
+    def get_position(self) -> Tuple[float, float]:
 
         self.wheel_odometry.add_odometry_with_uncertainty(self.particles)
-        print(self.particles)
+        # if self.i % 10 == 0:
+        #     print(self.particles[0].x, self.particles[0].y)
+        # self.i+=1
+
+        return (0,0)
 
         # raise NotImplementedError()
 
@@ -57,26 +63,27 @@ class WheelOdometry:
         self.axle_radius: float = 0.25 # TODO figure out what this value actually is
 
     def get_current_odometry(self) -> Tuple[float, float]:
-        return (self.left_sensor.value / 10, self.right_sensor.value / 10)
+        return self.left_sensor.value, self.right_sensor.value
 
     def get_odometry_change_since_last_query(self) -> Tuple[float, float]:
-        last_x, last_y = self.stored_odometry
-        current_x, current_y = self.get_current_odometry()
-        self.stored_odometry = (current_x, current_y)
-        return (current_x - last_x, current_y - last_y)
+        last_left, last_right = self.stored_odometry
+        current_left, current_right = self.get_current_odometry()
+        self.stored_odometry = (current_left, current_right)
+        return current_left - last_left, current_right - last_right
 
     def add_odometry_with_uncertainty(self, particles: List[Position]):
         # Apply equations from week 2 to get robot's change in x / y
         (delta_sl, delta_sr) = self.get_odometry_change_since_last_query()
-        delta_theta = (delta_sl + delta_sr) / self.axle_radius
+        delta_theta = (delta_sl - delta_sr) / self.axle_radius
         self.stored_heading += delta_theta
         delta_s = (delta_sl + delta_sr) / 2
         delta_x = delta_s * math.cos(self.stored_heading + delta_theta / 2)
         delta_y = delta_s * math.sin(self.stored_heading + delta_theta / 2)
 
+        print(delta_sl, delta_sr, delta_x, delta_y)
         for particle in particles:
-            particle.x += delta_x + random.gauss(0, 0.01)
-            particle.y += delta_y + random.gauss(0, 0.01)
+            particle.x += delta_x + random.gauss(0, 0.005)
+            particle.y += delta_y + random.gauss(0, 0.005)
 
 
 class LidarArray:
@@ -95,7 +102,6 @@ class LidarArray:
         sleep(1)
         self.lidar_sensor.enable(int(combot.getBasicTimeStep()))
         sleep(1)
-        self.range_image = self.lidar_sensor.getRangeImageArray()
         self.range_image: List[float] = self.lidar_sensor.getRangeImage()
 
     def plot(self):
