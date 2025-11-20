@@ -1,10 +1,12 @@
 #VRML_SIM R2025a utf8
+
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/pal_robotics/tiagopp/protos/Tiago++.proto"
 
 WorldInfo {
+  basicTimeStep 4
 }
 Viewpoint {
   orientation -0.5773 0.5773 0.5773 2.0944
@@ -20,4 +22,6 @@ RectangleArena {
 Tiago++ {
   name "ComBot"
   controller "combot_controller"
+}
+FencingSword {
 }
