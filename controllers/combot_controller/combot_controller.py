@@ -49,7 +49,6 @@ timestep = int(combot.getBasicTimeStep())
 
 wb.wb_keyboard_enable(timestep)
 
-initialise_motors()
 # Main loop:
 # - perform simulation steps until Webots is stopping the controller
 while combot.step(timestep) != -1:
