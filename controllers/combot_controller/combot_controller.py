@@ -40,7 +40,7 @@ def check_manual_fencing_action(key_code):
         parry_high() 
     elif key_code == 90:  # Z (Parry Low)
         parry_low()
-    elif key_code == 82:  # R (En Guard)
+    elif key_code == 82:  # R (En Garde)
         en_garde()
 
 # combot.get_position()
@@ -49,7 +49,7 @@ timestep = int(combot.getBasicTimeStep())
 
 wb.wb_keyboard_enable(timestep)
 
-initialise_motors()
+en_garde()
 # Main loop:
 # - perform simulation steps until Webots is stopping the controller
 while combot.step(timestep) != -1:
