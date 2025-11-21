@@ -2,7 +2,6 @@
 
 from controller import wb as c_webots_api, \
     Motor  # The wb package gives you all the C-like methods, but the controller package wraps most of them in nicer-to-use classes.
-from initialisation import initialise_motors
 from fencing_actions import lunge, parry_high, parry_low, en_garde, move_to_pose
 from combot import Combot
 from strategy import decideMove
