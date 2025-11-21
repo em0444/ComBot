@@ -15,7 +15,7 @@ PROTO FencingSword [
   field SFVec3f    angularVelocity     0 0 0
 ]
 {
-  Solid {
+  DEF FENCING_SWORD_SOLID Solid {
     translation IS translation
     rotation IS rotation
     name IS name
