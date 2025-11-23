@@ -6,8 +6,8 @@
 # TIAGo robot's body from PAL Robotics.
 # The body can be extended with arms.
 
-EXTERNPROTO "webots://projects/appearances/protos/GlossyPaint.proto"
-EXTERNPROTO "webots://projects/devices/orbbec/protos/Astra.proto"
+EXTERNPROTO "../../../../../projects/appearances/protos/GlossyPaint.proto"
+EXTERNPROTO "../../../../../projects/devices/orbbec/protos/Astra.proto"
 
 PROTO TiagoBody [
   field  SFVec3f     translation   -0.054 0 0.193
