@@ -5,9 +5,11 @@ from controller import Motor, PositionSensor
 import combot
 from combot import Combot
 
+# Initialise the Robot Singleton and timestep
 combot = Combot()
 timestep = int(combot.getBasicTimeStep())
 
+# List of all joint sensor names to be enabled
 SENSOR_NAMES = [
     "head_2_joint_sensor",       "head_1_joint_sensor",       "torso_lift_joint_sensor",
     "arm_right_1_joint_sensor",  "arm_right_2_joint_sensor",  "arm_right_3_joint_sensor",
@@ -18,13 +20,14 @@ SENSOR_NAMES = [
 ]
 
 # Pose Definitions
-# Use the "en garde" values from the previous turn for the base
+# Standard defensive stance
 EN_GARDE_POSITIONS = [-0.3, 0.00, 0.35, 1.50, 
                        1.1, 0.00, 1.57, 1.00, 
                        0.00, 0.00, -0.80, -0.50, 
                        -0.27, 1.57,  -2.00,  1.20, 
                        2.00]
 
+# Extends the sword arm forward
 LUNGE_POSITIONS = [0.3, 0.0, 0.15, 1.50, 
                     -0.3, -0.52, -0.02, 0.00, 
                     0.0, 0.0, -0.80, -0.2, 
@@ -47,7 +50,11 @@ PARRY_LOW_POSITIONS = [0.1, 0.0, 0.25, 1.50,
 
 # Action Execution
 def move_to_pose(positions: list[float]):
-    # Sets joint positions
+    """Moves the robot to the specified joint positions.
+
+    Args:
+        positions (list[float]): List of target joint positions.
+    """
     robot_part_strings = ["head_2_joint",      "head_1_joint",      "torso_lift_joint",  "arm_right_1_joint",
                       "arm_right_2_joint", "arm_right_3_joint", "arm_right_4_joint", "arm_right_5_joint",
                       "arm_right_6_joint", "arm_right_7_joint", "arm_left_1_joint",  "arm_left_2_joint",
@@ -60,6 +67,7 @@ def move_to_pose(positions: list[float]):
         motor.setPosition(position)
 
 def enable_sensors():
+    """Enables all joint position sensors."""
     print("Enabling all joint sensors...")
     for sensor in SENSOR_NAMES:
         try:
@@ -69,6 +77,7 @@ def enable_sensors():
             print(f"Warning: Sensor '{sensor}' not found on robot.")
 
 def get_joint_angles():
+    """Returns a dictionary of joint angles from all enabled sensors."""
     angles = {}
     for sensor in SENSOR_NAMES:
         sensor = combot.getDevice(sensor)
@@ -80,6 +89,7 @@ def get_joint_angles():
 
 # Fencing Actions
 def en_garde():
+    """Executes the en garde fencing stance."""
     get_joint_angles()
     print("Executing en garde...")
     move_to_pose(EN_GARDE_POSITIONS)
@@ -87,18 +97,21 @@ def en_garde():
     get_joint_angles()
      
 def lunge():
+    """Executes the lunge fencing action."""
     print("Executing lunge...")
     move_to_pose(LUNGE_POSITIONS)
     print("Done")
     get_joint_angles()
     
 def parry_high():
+    """Executes the high parry fencing action."""
     print("Executing high parry...")
     move_to_pose(PARRY_HIGH_POSITIONS)
     print("Done")
     get_joint_angles()
     
-def parry_low():  
+def parry_low(): 
+    """Executes the low parry fencing action."""
     print("Executing low parry...")
     move_to_pose(PARRY_LOW_POSITIONS)
     print("Done")
