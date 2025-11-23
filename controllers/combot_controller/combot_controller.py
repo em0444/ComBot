@@ -2,8 +2,7 @@
 
 from controller import wb as c_webots_api, \
     Motor  # The wb package gives you all the C-like methods, but the controller package wraps most of them in nicer-to-use classes.
-from initialisation import initialise_motors
-from fencing_actions import lunge, parry_high, parry_low, en_garde, move_to_pose
+from fencing_actions import lunge, parry_high, parry_low, en_garde, move_to_pose, get_joint_angles, enable_sensors
 from combot import Combot
 
 wb = c_webots_api.wb
@@ -49,7 +48,15 @@ timestep = int(combot.getBasicTimeStep())
 
 wb.wb_keyboard_enable(timestep)
 
+enable_sensors()
+
+# Ensures sensors are enabled before reading them
+for _ in range(5):
+    combot.step(timestep)
+print("Sensors ready.")
+
 en_garde()
+
 # Main loop:
 # - perform simulation steps until Webots is stopping the controller
 while combot.step(timestep) != -1:
