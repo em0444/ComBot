@@ -9,7 +9,7 @@
 EXTERNPROTO "../projects/robots/pal_robotics/tiago_extensions/protos/TiagoGripper.proto"
 EXTERNPROTO "../projects/devices/hokuyo/protos/HokuyoUrg04lxug01.proto"
 EXTERNPROTO "../projects/devices/orbbec/protos/Astra.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/pal_robotics/tiago_base/protos/TiagoBase.proto"
+EXTERNPROTO "../projects/robots/pal_robotics/tiago_base/protos/TiagoBase.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/pal_robotics/tiago_extensions/protos/TiagoBody.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/pal_robotics/tiago_extensions/protos/TiagoRightArm.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/pal_robotics/tiago_extensions/protos/TiagoLeftArm.proto"
