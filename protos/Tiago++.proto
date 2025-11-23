@@ -7,8 +7,8 @@
 # The robot is composed by the TIAGo base and a body with two arms equipped with parallel grippers.
 
 EXTERNPROTO "../projects/robots/pal_robotics/tiago_extensions/protos/TiagoGripper.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/devices/hokuyo/protos/HokuyoUrg04lxug01.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/devices/orbbec/protos/Astra.proto"
+EXTERNPROTO "../projects/devices/hokuyo/protos/HokuyoUrg04lxug01.proto"
+EXTERNPROTO "../projects/devices/orbbec/protos/Astra.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/pal_robotics/tiago_base/protos/TiagoBase.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/pal_robotics/tiago_extensions/protos/TiagoBody.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/pal_robotics/tiago_extensions/protos/TiagoRightArm.proto"
