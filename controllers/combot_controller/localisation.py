@@ -1,11 +1,8 @@
 import math
 import random
-from time import sleep
 from typing import List, Tuple
 
 from controller import PositionSensor, Lidar
-import matplotlib.pyplot as plt
-
 from controllers.combot_controller.combot import Combot
 
 global combot
@@ -20,18 +17,16 @@ class Localisation:
         self.lidar_array = LidarArray()
         self.wheel_odometry = WheelOdometry()
 
-
-        # initial_random_particles = [Particle.generate_random_position() for _ in range(num_particles)]
-        #
-        # self.particles = initial_random_particles
-        # self.i = 0
+        initial_random_particles = [Particle.generate_random_position() for _ in range(num_particles)]
+        self.particles = initial_random_particles
 
 
     def get_position(self) -> Tuple[float, float]:
 
-        # self.wheel_odometry.add_odometry_with_uncertainty(self.particles)
-        # [particle.generate_ray_march_expected_sensor_data() for particle in self.particles]
-        self.lidar_array.get_angle_distances()
+        self.wheel_odometry.add_odometry_with_uncertainty(self.particles)
+        lidar_data = self.lidar_array.get_angle_distances()
+        weights = [particle.calculate_weight(lidar_data) for particle in self.particles]
+        print(weights)
 
         return (0,0)
 
@@ -77,18 +72,17 @@ class LidarArray:
     # Wrapper for the Hokuyo URG-04LX-UG01 sensor
     def __init__(self):
         self.lidar_sensor: Lidar = [device for device in combot.devices.values() if isinstance(device, Lidar)][0]
-        print(self.lidar_sensor.name)
         self.lidar_sensor.__init__("Hokuyo URG-04LX-UG01", int(combot.getBasicTimeStep()))
         self.lidar_sensor.enable(int(combot.getBasicTimeStep()))
 
     def plot(self):
+        import matplotlib.pyplot as plt #Lazy import to stop compiler complaining
         y = [10 if math.isinf(v) else v for v in self.lidar_sensor.getRangeImage()]
         plt.plot(y)
         plt.show()
 
     def get_angle_distances(self, num_distances=20) -> List[Tuple[float, float]]: #List of (angle in radians, distance)
         range_image = self.lidar_sensor.getRangeImage()
-        print(self.lidar_sensor.getFov())
         mid = len(range_image) // 2
         left_vision = [range_image[i] for i in range(mid)]
         right_vision = [range_image[i] for i in range(mid, len(range_image))]
@@ -132,14 +126,20 @@ class Particle:
         position_y = self.y + math.sin(angle) * distance
         return (self.min_x < position_x < self.max_x) and (self.min_y < position_y < self.max_y)
 
-    def calculate_weight(self, lidar_array: LidarArray):
-        real_sensor_values = lidar_array.get_angle_distances()
+    def calculate_weight(self, real_sensor_values: List[Tuple[float, float]]) -> float:
         expected_sensor_means = self.generate_ray_march_expected_sensor_data([angle[0] for angle in real_sensor_values])
         sensor_std = 0.5
 
+        summation: float = 0.0
+
         for value in zip(expected_sensor_means, real_sensor_values):
-            print("here!")
-            #find the probability of that value, add it together to get the log likelihood
+            expected_sensor_mean, real_sensor_value = value
+            _, expected_distance = expected_sensor_mean
+            actual_distance, _ = real_sensor_value
+            summation += math.pow((actual_distance - expected_distance), 2)
+
+        log_likelihood = -(1/2*math.pow(sensor_std, 2)) * summation
+        return log_likelihood
 
     @staticmethod
     def generate_random_position():
