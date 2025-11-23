@@ -51,13 +51,25 @@ PROTO FencingSword [
     boundingObject Group {
       children [
         Pose { # Handle
-          translation 0 -0.21 0.06
-          children [
-            Sphere {
-              radius 0.12
-            }
-          ]
-        }
+        translation 0 -0.25 0.06
+        rotation 1 0 0 1.5708
+        children [
+          Cylinder {
+            height 0.12
+            radius 0.015
+          }
+        ]
+      }
+      Pose { # Guard
+        translation -1.10112e-13 -0.14 0.06
+        rotation 0.9999999999944944 2.3464099999870814e-06 -2.3464099999870814e-06 1.5708
+        children [
+          Cylinder {
+            height 0.01
+            radius 0.075
+          }
+        ]
+      }
         Pose { # Blade
           translation 3.9109e-05 0.21 0.06
           rotation -1 0 0 1.5708
