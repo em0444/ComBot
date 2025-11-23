@@ -5,6 +5,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/pal_robotics/tiagopp/protos/Tiago++.proto"
 EXTERNPROTO "../protos/FencingSword.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/tables/protos/Table.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/rocks/protos/Rock.proto"
 
 WorldInfo {
   basicTimeStep 4
@@ -25,4 +27,12 @@ Tiago++ {
   controller "combot_controller"
 }
 FencingSword {
+  translation 1 -0.02 0.54
+}
+Table {
+  translation 1.2 0 0
+  size 1 1.8 0.54
+}
+Rock {
+  translation 1.14 -0.14 0.6
 }
