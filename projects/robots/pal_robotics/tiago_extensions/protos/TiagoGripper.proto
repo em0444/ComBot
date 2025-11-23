@@ -6,10 +6,10 @@
 # Parallel gripper end-effector for the TIAGo robot from PAL Robotics.
 # template language: javascript
 
-EXTERNPROTO "webots://projects/appearances/protos/MattePaint.proto"
-EXTERNPROTO "webots://projects/appearances/protos/BrushedAluminium.proto"
-EXTERNPROTO "webots://projects/appearances/protos/GlossyPaint.proto"
-EXTERNPROTO "webots://projects/objects/factory/tools/protos/CapScrew.proto"
+EXTERNPROTO "../../../../../projects/appearances/protos/MattePaint.proto"
+EXTERNPROTO "../../../../../projects/appearances/protos/BrushedAluminium.proto"
+EXTERNPROTO "../../../../../projects/appearances/protos/GlossyPaint.proto"
+EXTERNPROTO "../../../../../projects/objects/factory/tools/protos/CapScrew.proto"
 
 PROTO TiagoGripper [
   field  SFVec3f                             translation  0 0.016 0
