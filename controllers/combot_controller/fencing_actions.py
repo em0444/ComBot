@@ -92,27 +92,43 @@ def en_garde():
     """Executes the en garde fencing stance."""
     get_joint_angles()
     print("Executing en garde...")
+    combot.current_state = (combot.current_state,"EN_GARDE")
+    combot.changing_state = True
     move_to_pose(EN_GARDE_POSITIONS)
+    combot.current_state = "EN_GARDE"
+    combot.changing_state = False
     print("Done")
     get_joint_angles()
      
 def lunge():
     """Executes the lunge fencing action."""
     print("Executing lunge...")
+    combot.current_state = (combot.current_state,"LUNGE")
+    combot.changing_state = True
     move_to_pose(LUNGE_POSITIONS)
+    combot.current_state = "LUNGE"
+    combot.changing_state = False
     print("Done")
     get_joint_angles()
     
 def parry_high():
     """Executes the high parry fencing action."""
     print("Executing high parry...")
+    combot.current_state = (combot.current_state,"PARRY_HIGH")
+    combot.changing_state = True
     move_to_pose(PARRY_HIGH_POSITIONS)
+    combot.current_state = "PARRY_HIGH"
+    combot.changing_state = False
     print("Done")
     get_joint_angles()
     
 def parry_low(): 
     """Executes the low parry fencing action."""
     print("Executing low parry...")
+    combot.current_state = (combot.current_state,"PARRY_LOW")
+    combot.changing_state = True
     move_to_pose(PARRY_LOW_POSITIONS)
+    combot.current_state = "PARRY_LOW"
+    combot.changing_state = False
     print("Done")
     get_joint_angles()

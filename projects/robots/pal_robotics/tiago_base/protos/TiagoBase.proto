@@ -6,10 +6,10 @@
 # This is a PROTO file for Webots for the robot TIAGo from PAL Robotics (Spain).
 # It is the TIAGo base robot that can be extended with different features to fullfil your requirement.
 
-EXTERNPROTO "webots://projects/appearances/protos/GlossyPaint.proto"
-EXTERNPROTO "webots://projects/appearances/protos/MattePaint.proto"
-EXTERNPROTO "webots://projects/appearances/protos/Asphalt.proto"
-EXTERNPROTO "webots://projects/appearances/protos/BrushedAluminium.proto"
+EXTERNPROTO "../../../../../projects/appearances/protos/GlossyPaint.proto"
+EXTERNPROTO "../../../../../projects/appearances/protos/MattePaint.proto"
+EXTERNPROTO "../../../../../projects/appearances/protos/Asphalt.proto"
+EXTERNPROTO "../../../../../projects/appearances/protos/BrushedAluminium.proto"
 
 PROTO TiagoBase [
   field  SFVec3f     translation      0 0 0.095
