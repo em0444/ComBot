@@ -1,10 +1,14 @@
 from combot import Combot
 from fencing_actions import lunge, parry_high, parry_low, en_garde
+import random
 
 HITRANGE = 1.0
+ALLACTIONS =  [lunge, parry_high,parry_low,en_garde]
+STRATEGY5ACTIONDELAY = 2000
 
 combot = Combot()
-
+timestep = int(combot.getBasicTimeStep())
+timeEllapsed = 0
 
 def decideMove():
     currentPosition = combot.get_position()
@@ -49,4 +53,10 @@ def strategy4(currentPosition,currentArmPosition,currentSwordPosition,enemyPosit
             return parry_high
         if combot.current_state != "EN_GARDE":
             return en_garde
+    return None
+
+def strategy5(currentPosition,currentArmPosition,currentSwordPosition,enemyPosition,enemyArmPosition,enemySwordPosition):
+    if not combot.changing_state and timeEllapsed>=STRATEGY5ACTIONDELAY:
+        timeEllapsed = timeEllapsed - STRATEGY5ACTIONDELAY
+        return ALLACTIONS[random.randint(0,len(ALLACTIONS))]
     return None
