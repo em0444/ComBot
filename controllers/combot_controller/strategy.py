@@ -58,5 +58,13 @@ def strategy4(currentPosition,currentArmPosition,currentSwordPosition,enemyPosit
 def strategy5(currentPosition,currentArmPosition,currentSwordPosition,enemyPosition,enemyArmPosition,enemySwordPosition):
     if not combot.changing_state and timeEllapsed>=STRATEGY5ACTIONDELAY:
         timeEllapsed = timeEllapsed - STRATEGY5ACTIONDELAY
-        return ALLACTIONS[random.randint(0,len(ALLACTIONS))]
+        return ALLACTIONS[random.randint(0,len(ALLACTIONS)-1)]
     return None
+
+def templateStrategyCycle(actionList,timeInterval):
+    def newStrategy(currentPosition,currentArmPosition,currentSwordPosition,enemyPosition,enemyArmPosition,enemySwordPosition):
+        if not combot.changing_state and timeEllapsed>=timeInterval:
+            timeEllapsed = timeEllapsed - timeInterval
+            return actionList[random.randint(0,len(actionList)-1)]
+        return None
+    return newStrategy
