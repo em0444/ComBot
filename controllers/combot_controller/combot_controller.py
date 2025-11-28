@@ -65,7 +65,7 @@ while combot.step(timestep) != -1:
     check_keyboard(key)
     check_manual_fencing_action(key)
 
-    move = strat.decideMove()
+    move = strat.strategy7(combot)
     if move is not None:
         move()
 

@@ -77,3 +77,5 @@ def templateStrategyRandom(actionList,weights,timeInterval):
 strategy5 = templateStrategyRandom(ALLACTIONS,[1,1,1,1],2.0)
 
 strategy6 = templateStrategyRandom(ALLACTIONS,[1,1,1,1],1.0)
+
+strategy7 = templateStrategyCycle([parry_high,parry_low],1.5)
