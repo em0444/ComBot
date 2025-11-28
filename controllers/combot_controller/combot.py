@@ -5,8 +5,10 @@ from controller import Robot
 
 class Combot(Robot):
     _instance = None
-    changing_state = False
-    current_state = "DEFAULT"
+    changing_body_state = False
+    body_state = "DEFAULT"
+    changing_base_state = False
+    base_state = "STILL"
     timeCounter = 0.0
     cycleIndex = -1
     def __new__(cls, *args, **kwargs):
