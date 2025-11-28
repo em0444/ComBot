@@ -123,7 +123,7 @@ PROTO TiagoBody [
         device [
           LinearMotor {
             name "torso_lift_joint"
-            maxVelocity 0.07
+            maxVelocity 0.2
             maxPosition 0.35
             maxForce 2000
           }
