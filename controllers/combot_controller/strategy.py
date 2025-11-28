@@ -1,4 +1,3 @@
-from combot import Combot
 from fencing_actions import lunge, parry_high, parry_low, en_garde
 import random
 
@@ -6,13 +5,8 @@ HITRANGE = 1.0
 ALLACTIONS =  [lunge, parry_high,parry_low,en_garde]
 STRATEGY5ACTIONDELAY = 2000
 
-combot = Combot()
-timestep = int(combot.getBasicTimeStep())
 timeEllapsed = 0
 
-def decideMove():
-    optimalMove = strategy5
-    return optimalMove(combot)
 
 def distance(vec1,vec2):
     return ((vec1[0]-vec2[0])^2 + (vec1[1]-vec2[1])^2 + (vec1[2]-vec2[2])^2)^0.5
