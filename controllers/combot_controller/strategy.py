@@ -15,36 +15,36 @@ def strategy0(robot):
     return None
 
 def strategy1(robot):
-    if not robot.changing_state and robot.current_state != "EN_GARDE":
+    if not robot.changing_body_state and robot.body_state != "EN_GARDE":
         return en_garde
     return None
 
 def strategy2(robot):
-    if not robot.changing_state and robot.current_state != "LUNGE":
+    if not robot.changing_body_state and robot.body_state != "LUNGE":
         return lunge
     return None
 
 def strategy3(robot):
-    if not robot.changing_state:
-        if distance(robot.currentPosition,robot.enemyPosition) < HITRANGE and robot.current_state != "LUNGE":
+    if not robot.changing_body_state:
+        if distance(robot.currentPosition,robot.enemyPosition) < HITRANGE and robot.body_state != "LUNGE":
             return lunge
-        if robot.current_state != "EN_GARDE":
+        if robot.body_state != "EN_GARDE":
             return en_garde
     return None
 
 def strategy4(robot):
-    if not robot.changing_state:
+    if not robot.changing_body_state:
         if distance(robot.enemySwordPosition,robot.enemyPosition) > distance(robot.enemySwordPosition,robot.currentPosition):
-            if robot.current_state == "PARRY_HIGH":
+            if robot.body_state == "PARRY_HIGH":
                 return lunge
             return parry_high
-        if robot.current_state != "EN_GARDE":
+        if robot.body_state != "EN_GARDE":
             return en_garde
     return None
 
 def templateStrategyCycle(actionList,timeInterval):
     def newStrategy(robot):
-        if not robot.changing_state and robot.timeCounter<=robot.getTime():
+        if not robot.changing_body_state and robot.timeCounter<=robot.getTime():
             robot.timeCounter = robot.timeCounter + timeInterval
             robot.cycleIndex = robot.cycleIndex + 1
             if robot.cycleIndex >= len(actionList):
@@ -57,7 +57,7 @@ def templateStrategyRandom(actionList,weights,timeInterval):
     if len(actionList)!=len(weights):
         return strategy0
     def newStrategy(robot):
-        if not robot.changing_state and robot.timeCounter<=robot.getTime():
+        if not robot.changing_body_state and robot.timeCounter<=robot.getTime():
             robot.timeCounter = robot.timeCounter + timeInterval
             weightIndex = random.randint(1,sum(weights))
             for i in range(0,len(actionList)):
