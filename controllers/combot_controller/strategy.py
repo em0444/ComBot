@@ -75,3 +75,5 @@ def templateStrategyRandom(actionList,weights,timeInterval):
     return newStrategy
 
 strategy5 = templateStrategyRandom(ALLACTIONS,[1,1,1,1],2.0)
+
+strategy6 = templateStrategyRandom(ALLACTIONS,[1,1,1,1],1.0)
