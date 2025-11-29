@@ -9,28 +9,57 @@ from controllers.combot_controller.combot import Combot
 
 global combot
 
+# distance_sensors: List[DistanceSensor] = [device for device in combot.devices.values() if isinstance(device, DistanceSensor)]
+
 class Localisation:
-    def __init__(self, combot_obj: Combot, num_particles=5):
+    def __init__(self, combot_obj: Combot, num_particles=30):
         global combot
         combot = combot_obj
-        # distance_sensors: List[DistanceSensor] = [device for device in combot.devices.values() if isinstance(device, DistanceSensor)]
-        self.num_particles = num_particles
 
         self.lidar_array = LidarArray()
         self.wheel_odometry = WheelOdometry()
 
         initial_random_particles = [Particle() for _ in range(num_particles)]
         self.particles = initial_random_particles
+        self.num_particles = num_particles
 
     def get_position(self) -> Tuple[float, float]:
+
+
 
         odometry_change_data = self.wheel_odometry.get_odometry_change_since_last_query()
         lidar_data = self.lidar_array.get_lidar_map()
 
-        weights = [particle.calculate_weight(odometry_change_data, lidar_data) for particle in self.particles]
-        print(weights)
+        # somep = Particle(Position(0,0,0))
+        # somep.calculate_weight(odometry_change_data, lidar_data)
+        #
+        # print(somep.weight)
 
-        return 0,0
+
+        # for particle in self.particles:
+        #     particle.calculate_weight(odometry_change_data, lidar_data)
+        #
+        # weight_sum = sum(p.weight for p in self.particles)
+        #
+        # for particle in self.particles:
+        #     particle.calculate_normalised_weight(weight_sum)
+        #
+        # self.particles = random.choices(self.particles, weights=[p.normalised_weight for p in self.particles], k=self.num_particles) # Perform the actual resampling step
+        #
+        # for i in range(5):
+        #     print(f"Position: {self.particles[i].position.x}, {self.particles[i].position.y} (weight {self.particles[i].weight}, normalised {self.particles[i].normalised_weight})")
+        # print("\n\n\n")
+
+        # return self.particles[0].position.x, self.particles[0].position.y
+
+        self.particles = [Particle() for _ in range(30)]
+
+        for particle in self.particles:
+            particle.calculate_weight(odometry_change_data, lidar_data)
+
+        best_particle = sorted(self.particles, key=lambda p: p.weight, reverse=True)[0]
+        print(best_particle.position.x, best_particle.position.y)
+        return best_particle.position.x, best_particle.position.y
 
 
 class WheelOdometry:
@@ -60,7 +89,7 @@ class LidarArray:
     # Wrapper for the Hokuyo URG-04LX-UG01 sensor
     def __init__(self):
         self.lidar_sensor: Lidar = [device for device in combot.devices.values() if isinstance(device, Lidar)][0]
-        self.lidar_sensor.__init__("Hokuyo URG-04LX-UG01", int(combot.getBasicTimeStep()))
+        self.lidar_sensor.__init__("Velodyne VLP-16", int(combot.getBasicTimeStep()))
         self.lidar_sensor.enable(int(combot.getBasicTimeStep()))
 
     def plot(self):
@@ -68,12 +97,12 @@ class LidarArray:
         Plot the received lidar data for debugging purposes.
         """
         import matplotlib.pyplot as plt #Lazy import to stop compiler complaining
-        y = [10 if math.isinf(v) else v for v in self.lidar_sensor.getRangeImage()]
+        y = [10 if math.isinf(v) else v for v in self.lidar_sensor.getRangeImageArray()[6]]
         plt.plot(y)
         plt.show()
 
-    def get_lidar_map(self, num_distances=20) -> List[LidarRay]: # TODO this needs to make proper use of heading data !!
-        range_image = self.lidar_sensor.getRangeImage()
+    def get_lidar_map(self, num_distances=10) -> List[LidarRay]: # TODO this needs to make proper use of heading data !!
+        range_image = self.lidar_sensor.getRangeImageArray()[6]
         mid = len(range_image) // 2
         left_vision = [range_image[i] for i in range(mid)]
         right_vision = [range_image[i] for i in range(mid, len(range_image))]
@@ -81,7 +110,7 @@ class LidarArray:
         indexed_left_vision = [((3*math.pi)/2 + (i/len(left_vision))*(math.pi/2), v) for i, v in enumerate(left_vision)]
         indexed_right_vision = [(i/len(left_vision)*math.pi/2, v)  for i, v in enumerate(right_vision)]
         vision = [(i, v) for (i, v) in indexed_left_vision + indexed_right_vision if not math.isinf(v)]
-        vision = [LidarRay(distance=distance, angle_in_radians=angle) for distance, angle in vision]
+        vision = [LidarRay(distance=distance, angle_in_radians=angle) for angle, distance in vision]
 
         return random.sample(vision, num_distances)
 
@@ -92,8 +121,9 @@ class Particle:
             self.position: Position = Position.make_random()
         else:
             self.position: Position = position
+        self.weight = 0
 
-    def calculate_weight(self, odometry_change_data: OdometryChange, real_lidar_data: List[LidarRay]) -> float:
+    def calculate_weight(self, odometry_change_data: OdometryChange, real_lidar_data: List[LidarRay]) -> None:
         real_lidar_data = real_lidar_data.copy()
         self.add_odometry_to_current_position_with_uncertainty(odometry_change_data)
         expected_lidar_data = self.expected_lidar_data([ray.angle_in_radians for ray in real_lidar_data]) #Generate expected lidar data. Feed it the angles for which we want expected values.
@@ -104,11 +134,11 @@ class Particle:
         while not expected_lidar_data == []:
             expected: LidarRay = expected_lidar_data.pop()
             real: LidarRay = real_lidar_data.pop()
-            error = math.pow((expected.distance - real.distance), 2)
+            error = math.pow((expected.distance - real.distance), 2) # MSE Error
             error_summation += error
 
-        log_likelihood = -(1/2*math.pow(sensor_standard_deviation, 2)) * error_summation
-        return log_likelihood
+        log_likelihood = - error_summation / (2 * math.pow(sensor_standard_deviation, 2))
+        self.weight = log_likelihood
 
     def expected_lidar_data(self, angles_to_generate_rays_for_in_radians: List[float]) -> List[LidarRay]:
         """
@@ -117,8 +147,8 @@ class Particle:
         ray_data: List[LidarRay] = []
         for angle in angles_to_generate_rays_for_in_radians: # Use ray angles that the Lidar is actually producing to allow for better likelihood prediction.
             ray = LidarRay(distance=0, angle_in_radians=angle)
-            while not self._end_of_cast_ray_is_in_map(ray):
-               ray = ray.change_distance(0.05) # If it's not in the map, make the ray slightly longer. Keep checking until it just touches a wall.
+            while self._end_of_cast_ray_is_in_map(ray):
+               ray = ray.change_distance(0.05) # If it's still in the map, make the ray slightly longer. Keep checking until it just touches a wall.
             ray_data.append(ray)
         return ray_data
 
@@ -150,11 +180,15 @@ class Particle:
         delta_x = delta_s * math.cos(new_heading + delta_theta / 2)
         delta_y = delta_s * math.sin(new_heading + delta_theta / 2)
 
-        delta_x += random.gauss(0, 0.005) # Add gaussian uncertainty
-        delta_y += random.gauss(0, 0.005)
-        delta_theta = (delta_theta + random.gauss(0, 0.005)) % (2 * math.pi)
+        delta_x += random.gauss(0, 1.5 * delta_x) # Add gaussian uncertainty
+        delta_y += random.gauss(0, 1.5 * delta_y)
+        delta_theta = (delta_theta + random.gauss(0, 1.5 * delta_theta)) % (2 * math.pi)
 
         self.position = self.position.add(delta_x, delta_y, delta_theta) # Update the position
+
+    def calculate_normalised_weight(self, weight_sum: float) -> None:
+        self.normalised_weight: float = self.weight / weight_sum
+
 
 @dataclass(frozen=True)
 class OdometryChange:

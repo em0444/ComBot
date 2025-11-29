@@ -1,14 +1,16 @@
 #VRML_SIM R2025a utf8
+
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/pal_robotics/tiagopp/protos/Tiago++.proto"
+EXTERNPROTO "../protos/Tiago++.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/devices/velodyne/protos/VelodyneVLP-16.proto"
 
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.5773 0.5773 0.5773 2.0944
-  position 0 0 10
+  orientation -0.41263972909654817 0.014613993359786878 0.910777077648097 3.0771125827297774
+  position 4.145914489204661 -1.0395164159203722 4.3111921792178975
 }
 TexturedBackground {
 }
@@ -16,8 +18,14 @@ TexturedBackgroundLight {
 }
 RectangleArena {
   floorSize 10 10
+  wallHeight 5
 }
 Tiago++ {
   name "ComBot"
-  controller "combot_controller"
+  controller "<extern>"
+  lidarSlot [
+    VelodyneVLP-16 {
+      translation 0 0 1.62
+    }
+  ]
 }
