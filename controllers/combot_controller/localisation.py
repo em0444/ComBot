@@ -12,54 +12,36 @@ global combot
 # distance_sensors: List[DistanceSensor] = [device for device in combot.devices.values() if isinstance(device, DistanceSensor)]
 
 class Localisation:
-    def __init__(self, combot_obj: Combot, num_particles=30):
+    def __init__(self, combot_obj: Combot, num_particles=50):
         global combot
         combot = combot_obj
 
         self.lidar_array = LidarArray()
         self.wheel_odometry = WheelOdometry()
 
-        initial_random_particles = [Particle() for _ in range(num_particles)]
+        initial_random_particles = [Particle(Position(0, 0, math.pi)) for _ in range(num_particles)]
         self.particles = initial_random_particles
         self.num_particles = num_particles
 
     def get_position(self) -> Tuple[float, float]:
 
-
-
         odometry_change_data = self.wheel_odometry.get_odometry_change_since_last_query()
         lidar_data = self.lidar_array.get_lidar_map()
 
-        # somep = Particle(Position(0,0,0))
-        # somep.calculate_weight(odometry_change_data, lidar_data)
-        #
-        # print(somep.weight)
+        for particle in self.particles:
+            particle.calculate_log_likelihood(odometry_change_data, lidar_data)
 
-
-        # for particle in self.particles:
-        #     particle.calculate_weight(odometry_change_data, lidar_data)
-        #
-        # weight_sum = sum(p.weight for p in self.particles)
-        #
-        # for particle in self.particles:
-        #     particle.calculate_normalised_weight(weight_sum)
-        #
-        # self.particles = random.choices(self.particles, weights=[p.normalised_weight for p in self.particles], k=self.num_particles) # Perform the actual resampling step
-        #
-        # for i in range(5):
-        #     print(f"Position: {self.particles[i].position.x}, {self.particles[i].position.y} (weight {self.particles[i].weight}, normalised {self.particles[i].normalised_weight})")
-        # print("\n\n\n")
-
-        # return self.particles[0].position.x, self.particles[0].position.y
-
-        self.particles = [Particle() for _ in range(30)]
+        max_log_likelihood, min_log_likelihood = max([p.log_likelihood for p in self.particles]), min([p.log_likelihood for p in self.particles])
 
         for particle in self.particles:
-            particle.calculate_weight(odometry_change_data, lidar_data)
+            particle.calculate_normalised_weight(max_log_likelihood, min_log_likelihood, self.num_particles)
 
-        best_particle = sorted(self.particles, key=lambda p: p.weight, reverse=True)[0]
-        print(best_particle.position.x, best_particle.position.y)
-        return best_particle.position.x, best_particle.position.y
+        self.particles = random.choices(self.particles, weights=[p.normalised_weight for p in self.particles], k=self.num_particles) # Perform the actual resampling step
+
+        best_three_particles = sorted(self.particles, key=lambda p: p.normalised_weight, reverse=True)[:3]
+        print((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
+        return((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
+
 
 
 class WheelOdometry:
@@ -101,8 +83,10 @@ class LidarArray:
         plt.plot(y)
         plt.show()
 
-    def get_lidar_map(self, num_distances=10) -> List[LidarRay]: # TODO this needs to make proper use of heading data !!
+    def get_lidar_map(self, num_distances=50) -> List[LidarRay]: # TODO this needs to make proper use of heading data !!
         range_image = self.lidar_sensor.getRangeImageArray()[6]
+        step = len(range_image)//num_distances
+        range_image = range_image[::step]
         mid = len(range_image) // 2
         left_vision = [range_image[i] for i in range(mid)]
         right_vision = [range_image[i] for i in range(mid, len(range_image))]
@@ -112,7 +96,7 @@ class LidarArray:
         vision = [(i, v) for (i, v) in indexed_left_vision + indexed_right_vision if not math.isinf(v)]
         vision = [LidarRay(distance=distance, angle_in_radians=angle) for angle, distance in vision]
 
-        return random.sample(vision, num_distances)
+        return vision
 
 
 class Particle:
@@ -121,14 +105,18 @@ class Particle:
             self.position: Position = Position.make_random()
         else:
             self.position: Position = position
-        self.weight = 0
+        self.log_likelihood = 0
 
-    def calculate_weight(self, odometry_change_data: OdometryChange, real_lidar_data: List[LidarRay]) -> None:
+    def calculate_log_likelihood(self, odometry_change_data: OdometryChange, real_lidar_data: List[LidarRay]) -> None:
+
+        if not self.position.is_in_map(): # Particle somehow invalid
+            self.position = Position(0, 0, math.pi)
+
         real_lidar_data = real_lidar_data.copy()
         self.add_odometry_to_current_position_with_uncertainty(odometry_change_data)
         expected_lidar_data = self.expected_lidar_data([ray.angle_in_radians for ray in real_lidar_data]) #Generate expected lidar data. Feed it the angles for which we want expected values.
 
-        sensor_standard_deviation = 0.5
+        sensor_standard_deviation = 5
 
         error_summation = 0
         while not expected_lidar_data == []:
@@ -138,7 +126,7 @@ class Particle:
             error_summation += error
 
         log_likelihood = - error_summation / (2 * math.pow(sensor_standard_deviation, 2))
-        self.weight = log_likelihood
+        self.log_likelihood = log_likelihood
 
     def expected_lidar_data(self, angles_to_generate_rays_for_in_radians: List[float]) -> List[LidarRay]:
         """
@@ -180,14 +168,17 @@ class Particle:
         delta_x = delta_s * math.cos(new_heading + delta_theta / 2)
         delta_y = delta_s * math.sin(new_heading + delta_theta / 2)
 
-        delta_x += random.gauss(0, 1.5 * delta_x) # Add gaussian uncertainty
-        delta_y += random.gauss(0, 1.5 * delta_y)
-        delta_theta = (delta_theta + random.gauss(0, 1.5 * delta_theta)) % (2 * math.pi)
+        delta_x += random.gauss(0, 0.005) # Add gaussian uncertainty
+        delta_y += random.gauss(0, 0.005)
+        delta_theta = (delta_theta + random.gauss(0, 0.005)) % (2 * math.pi)
 
         self.position = self.position.add(delta_x, delta_y, delta_theta) # Update the position
 
-    def calculate_normalised_weight(self, weight_sum: float) -> None:
-        self.normalised_weight: float = self.weight / weight_sum
+    def calculate_normalised_weight(self, max_log_likelihood, min_log_likelihood, num_particles) -> None:
+        if max_log_likelihood == min_log_likelihood:
+            self.normalised_weight = 1 / num_particles
+        else:
+            self.normalised_weight = (self.log_likelihood - min_log_likelihood) / (max_log_likelihood - min_log_likelihood)
 
 
 @dataclass(frozen=True)
@@ -224,12 +215,31 @@ class Position:
 
     def is_in_map(self) -> bool:
         """
-        Return if the position is inside the map. Right now this function is simple, given the room is square, but it could be more complicated for a more complicated room shape/obstacles
+        Return if the position is inside the map.
         """
-        max_x, max_y, min_x, min_y = 5, 5, -5, -5
+
+        # If it's outside the main box, return false
+        max_x, max_y, min_x, min_y = 5, 2.5, -5, -2.5
         if self.x > max_x or self.x < min_x:
             return False
+
         if self.y > max_y or self.y < min_y:
+            return False
+
+        #(1,1) square in the corner
+        if self.x > 4 and self.y>1.5:
+            return False
+
+        #(1.5, 1) square in the corner
+        if self.x > 3.5 and self.y<-1.5:
+            return False
+
+        #(0.5, 2) square in the corner
+        if self.x <-4.5 and self.y<-0.5:
+            return False
+
+        #(2, 2) square in the corner
+        if self.x<-3 and self.y>0.5:
             return False
         return True
 
