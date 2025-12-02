@@ -7,6 +7,7 @@ EXTERNPROTO "../protos/Tiago++.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/devices/velodyne/protos/VelodyneVLP-16.proto"
 
 WorldInfo {
+  basicTimeStep 4
 }
 Viewpoint {
   orientation -0.5073668182470399 0.4936039159968765 0.7063526639394967 1.9374439691288785
@@ -52,4 +53,6 @@ Tiago++ {
       translation -0.41 0 0.24
     }
   ]
+}
+FencingSword {
 }
