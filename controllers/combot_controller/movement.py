@@ -11,7 +11,6 @@ global combot, target_position
 def is_in_target_position():
     pass
 
-
 def move_to_position(combot_obj: Combot, target_pos: Position) -> None:
     global combot, target_position
     combot, target_position = combot_obj, target_pos

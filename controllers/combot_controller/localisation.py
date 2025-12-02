@@ -85,6 +85,9 @@ class Localisation:
         # print((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
         # return((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
 
+    def get_enemy_position(self):
+        combot.update_internal_position_model()
+        raise NotImplementedError()
 
 
 class WheelOdometry:
@@ -243,4 +246,3 @@ class LidarRay:
 
     def change_distance(self, distance_to_add):
         return LidarRay(self.distance + distance_to_add, self.angle_in_radians)
-

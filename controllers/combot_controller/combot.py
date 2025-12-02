@@ -41,6 +41,11 @@ class Combot(Robot):
         raise NotImplementedError()
     
     def get_enemy_position(self):
+        if self.localisation is None:
+            from controllers.combot_controller.localisation import Localisation
+            self.localisation = Localisation(combot_obj=self)
+        self.position = self.localisation.get_enemy_position()
+
         raise NotImplementedError()
     
     def get_enemy_arm_position(self):
