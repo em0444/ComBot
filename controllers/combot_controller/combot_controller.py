@@ -75,7 +75,7 @@ while combot.step(timestep) != -1:
     print(combot.get_position())
     if not done:
         print("sending command to move robot to position...")
-        combot.move_to_position(Position(1, 3, math.pi / 2))
+        combot.move_to_position(Position(3, 1, math.pi))
         done = True
     pass
 

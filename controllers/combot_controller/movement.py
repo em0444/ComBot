@@ -1,6 +1,8 @@
 import math
 from enum import Enum
+from typing import Optional
 
+from controller import Motor
 from controllers.combot_controller.combot import Combot
 from controllers.combot_controller.shared_dataclasses import Position
 
@@ -17,24 +19,68 @@ def move_to_position(combot_obj: Combot, target_pos: Position) -> None:
 
 
     # First calculate the rotation that we need to achieve to get to the positon
-    current_position: Position = combot_obj.get_position()
-    requested_delta_x: float = target_position.x - current_position.x
-    requested_delta_y: float = target_position.y - current_position.y
+    starting_position: Position = combot_obj.get_position()
+    requested_delta_x: float = target_position.x - starting_position.x
+    requested_delta_y: float = target_position.y - starting_position.y
     required_heading: float = (math.atan2(requested_delta_y, requested_delta_x) + (2 * math.pi)) % (2 * math.pi)
+    required_distance: float = math.sqrt(requested_delta_x ** 2 + requested_delta_y ** 2)
 
+    # Point ourselves in the right direction
     rotate_to_heading(target_heading=required_heading)
 
-    # while not can_finish:
-    #
-    #     left_wheel_joint, right_wheel_joint = combot.getDevice("wheel_left_joint"), combot.getDevice("wheel_right_joint")
-    #     max_velocity = combot.getDevice("wheel_left_joint").getMaxVelocity()
-    #
-    #
-    #
-    #     if is_in_target_position():
-    #         previous_times_combot_in_correct_position += 1
-    #     if previous_times_combot_in_correct_position == 3:
-    #         can_finish = True
+    # Start moving
+    begin_moving_forward(combot, requested_delta_x, requested_delta_y)
+
+
+    last_turning_direction: Optional[TurnDirection] = None
+    required_turning_direction: Optional[TurnDirection] = None
+    finished = False
+    while not finished:
+
+        #If we've travelled far enough, then we're done!
+        combot.update_internal_position_model()
+        current_position: Position = combot.get_position()
+        amount_travelled = math.sqrt((current_position.x - starting_position.x) ** 2 + (current_position.y - starting_position.y) ** 2)
+        if amount_travelled > required_distance:
+            break
+
+        # Wait a bit...
+        for i in range(10):
+            combot.step(int(combot.getBasicTimeStep()))
+
+        # Adjust course so we're still moving on the right heading
+        current_heading = combot.get_position().heading_in_radians
+
+        turning_direction_in_radians = (required_heading - current_heading) % (2 * math.pi)
+        if turning_direction_in_radians > math.pi:
+            turning_direction_in_radians -= 2 * math.pi
+
+        required_turning_direction = None
+        if turning_direction_in_radians > 0.1:
+            required_turning_direction = TurnDirection.LEFT
+        if turning_direction_in_radians < -0.1:
+            required_turning_direction = TurnDirection.RIGHT
+
+        if not last_turning_direction == required_turning_direction: # Then we're not already adjusting our course in the correct way, so change something!
+            last_turning_direction = required_turning_direction
+            begin_moving_forward(combot, requested_delta_x, requested_delta_y) # Straighten back up
+            if required_turning_direction is not None:
+                turn(required_turning_direction, turning_speed=0.5)
+
+    print("Combot now at destination position... Killing motors.")
+    turn(TurnDirection.STOP, 0.0)
+
+def begin_moving_forward(combot, requested_delta_x, requested_delta_y):
+    print("Moving forward...")
+    left_wheel_joint, right_wheel_joint = combot.getDevice("wheel_left_joint"), combot.getDevice("wheel_right_joint")
+    amount_needed_to_move = math.sqrt(requested_delta_x ** 2 + requested_delta_y ** 2)
+    max_wheel_speed = left_wheel_joint.getMaxVelocity()
+    speed_to_move = max_wheel_speed * amount_needed_to_move / 10
+    combot.getDevice("wheel_left_joint").setPosition(float('inf'))
+    combot.getDevice("wheel_right_joint").setPosition(float('inf'))
+    combot.getDevice("wheel_left_joint").setVelocity(speed_to_move)
+    combot.getDevice("wheel_right_joint").setVelocity(speed_to_move)
+
 
 class TurnDirection(Enum):
     LEFT = 1
@@ -64,14 +110,21 @@ def turn(turning_direction: TurnDirection, turning_speed) -> None:
     combot.getDevice("wheel_right_joint").setPosition(float('inf'))
     combot.getDevice("wheel_left_joint").setVelocity(wheel_left_velocity)
     combot.getDevice("wheel_right_joint").setVelocity(wheel_right_velocity)
+    print("Done!")
 
 amount_required_to_slow_down = 0.25
-satisfactory_finished_distance = 0.1
+satisfactory_finished_distance = 0.15
 
 def rotate_to_heading(target_heading: float):
     print(f"rotating to heading {target_heading}")
     current_heading = combot.get_position().heading_in_radians
-    delta_heading = target_heading - current_heading
+    delta_heading = (target_heading - current_heading) % (2 * math.pi)
+    if delta_heading > math.pi:
+        delta_heading -= 2 * math.pi
+
+    if abs(delta_heading < 0.05):
+        print("Amount to turn too small to execute... skipping.")
+        return
 
     if delta_heading == 0:
         return
@@ -97,11 +150,17 @@ def rotate_to_heading(target_heading: float):
             finished_turn_procedure = True
 
     #Wait for the robot to finish the turn before we do anything else
+    print("Waiting for turn to be complete...")
+    max_timesteps_to_wait = 200
+    num_timesteps_waited = 0
     while abs(target_heading - current_heading) >= satisfactory_finished_distance * delta_heading:
         for i in range(10):
             combot.step(int(combot.getBasicTimeStep()))
+            num_timesteps_waited += 1
 
         current_heading = combot.localisation.inertial_heading.get_heading_in_radians()
+        if num_timesteps_waited >= max_timesteps_to_wait: # Maximum wait time to prevent infinite loop
+            break
 
     print(f"Finished Turning... Current heading {current_heading}")
 
