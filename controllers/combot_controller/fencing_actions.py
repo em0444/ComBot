@@ -51,39 +51,71 @@ def move_to_pose(positions: list[float]):
         motor.setVelocity(motor.getVelocity())
         motor.setPosition(position)
 
+# Movement Execution
+
 # Functions
 def en_garde():
     print("Executing en garde...")
-    combot.current_state = (combot.current_state,"EN_GARDE")
-    combot.changing_state = True
+    combot.body_state = (combot.body_state,"EN_GARDE")
+    combot.changing_body_state = True
     move_to_pose(EN_GARDE_POSITIONS)
-    combot.current_state = "EN_GARDE"
-    combot.changing_state = False
+    combot.body_state = "EN_GARDE"
+    combot.changing_body_state = False
     print("Done")
      
 def lunge():
     print("Executing lunge...")
-    combot.current_state = (combot.current_state,"LUNGE")
-    combot.changing_state = True
+    combot.body_state = (combot.body_state,"LUNGE")
+    combot.changing_body_state = True
     move_to_pose(LUNGE_POSITIONS)
-    combot.current_state = "LUNGE"
-    combot.changing_state = False
+    combot.body_state = "LUNGE"
+    combot.changing_body_state = False
     print("Done")
     
 def parry_high():
     print("Executing high parry...")
-    combot.current_state = (combot.current_state,"PARRY_HIGH")
-    combot.changing_state = True
+    combot.body_state = (combot.body_state,"PARRY_HIGH")
+    combot.changing_body_state = True
     move_to_pose(PARRY_HIGH_POSITIONS)
-    combot.current_state = "PARRY_HIGH"
-    combot.changing_state = False
+    combot.body_state = "PARRY_HIGH"
+    combot.changing_body_state = False
     print("Done")
     
 def parry_low():  
     print("Executing low parry...")
-    combot.current_state = (combot.current_state,"PARRY_LOW")
-    combot.changing_state = True
+    combot.body_state = (combot.body_state,"PARRY_LOW")
+    combot.changing_body_state = True
     move_to_pose(PARRY_LOW_POSITIONS)
-    combot.current_state = "PARRY_LOW"
-    combot.changing_state = False
+    combot.body_state = "PARRY_LOW"
+    combot.changing_body_state = False
     print("Done")
+
+def move_forward():
+    combot.base_state = (combot.base_state,"FORWARD")
+    combot.changing_base_state = True
+    combot.getDevice("wheel_left_joint").setPosition(float('inf'))
+    combot.getDevice("wheel_right_joint").setPosition(float('inf'))
+    combot.getDevice("wheel_left_joint").setVelocity(combot.getDevice("wheel_left_joint").getMaxVelocity())
+    combot.getDevice("wheel_right_joint").setVelocity(combot.getDevice("wheel_right_joint").getMaxVelocity())
+    combot.base_state = "FORWARD"
+    combot.changing_base_state = False
+
+def move_backward():
+    combot.base_state = (combot.base_state,"BACKWARDS")
+    combot.changing_base_state = True
+    combot.getDevice("wheel_left_joint").setPosition(float('inf'))
+    combot.getDevice("wheel_right_joint").setPosition(float('inf'))
+    combot.getDevice("wheel_left_joint").setVelocity(-combot.getDevice("wheel_left_joint").getMaxVelocity())
+    combot.getDevice("wheel_right_joint").setVelocity(-combot.getDevice("wheel_right_joint").getMaxVelocity())
+    combot.base_state = "BACKWARD"
+    combot.changing_base_state = False
+
+def move_stop():
+    combot.base_state = (combot.base_state,"STILL")
+    combot.changing_base_state = True
+    combot.getDevice("wheel_left_joint").setPosition(float('inf'))
+    combot.getDevice("wheel_right_joint").setPosition(float('inf'))
+    combot.getDevice("wheel_left_joint").setVelocity(0)
+    combot.getDevice("wheel_right_joint").setVelocity(0)
+    combot.base_state = "STILL"
+    combot.changing_base_state = False
