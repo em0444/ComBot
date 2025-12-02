@@ -4,13 +4,12 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "../protos/Tiago++.proto"
-EXTERNPROTO "../protos/FencingSword.proto"
 
 WorldInfo {
   basicTimeStep 4
 }
 Viewpoint {
-  orientation -0.5773 0.5773 0.5773 2.0944
+  orientation -0.5773502691896257 0.5773502691896257 0.5773502691896257 2.0944
   position 0 0 10
 }
 TexturedBackground {
@@ -20,17 +19,15 @@ TexturedBackgroundLight {
 RectangleArena {
   floorSize 14 2
 }
-Tiago++ {
-  name "ComBot"
-  controller "combot_controller"
+DEF ComBot Tiago++ {
   translation 2 0 0.1
   rotation 0 0 1 -3.14159
+  name "ComBot"
+  controller "combot_controller"
 }
 Tiago++ {
-  name "TrainingComBot"
-  controller "combot_controller"
   translation -2 0 0.1
-}
-FencingSword {
-    translation 0 0 0
+  name "TrainingComBot"
+  controller "training_combot_controller"
+  supervisor TRUE
 }
