@@ -6,7 +6,7 @@
 # Model of the Astra RGBD camera developed by Orbbec.
 # template language: javascript
 
-EXTERNPROTO "webots://projects/appearances/protos/MattePaint.proto"
+EXTERNPROTO "../../../../projects/appearances/protos/MattePaint.proto"
 
 PROTO Astra [
   field SFVec3f    translation   0 0 0

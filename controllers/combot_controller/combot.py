@@ -7,6 +7,8 @@ from controllers.combot_controller.shared_dataclasses import Position
 
 class Combot(Robot):
     _instance = None
+    changing_state = False
+    current_state = "DEFAULT"
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls)

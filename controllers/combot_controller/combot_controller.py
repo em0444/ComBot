@@ -5,9 +5,11 @@ from controller import wb as c_webots_api, \
     Motor  # The wb package gives you all the C-like methods, but the controller package wraps most of them in nicer-to-use classes.
 from controllers.combot_controller.shared_dataclasses import Position
 from initialisation import initialise_motors
+
 from fencing_actions import lunge, parry_high, parry_low, en_garde, move_to_pose
 from combot import Combot
-
+from strategy import decideMove
+decideMove = lambda : None
 wb = c_webots_api.wb
 
 combot: Combot = Combot()
@@ -50,7 +52,6 @@ timestep = int(combot.getBasicTimeStep())
 
 wb.wb_keyboard_enable(timestep)
 
-# initialise_motors()
 # Main loop:
 # - perform simulation steps until Webots is stopping the controller
 done = False
@@ -77,6 +78,11 @@ while combot.step(timestep) != -1:
         print("sending command to move robot to position...")
         combot.move_to_position(Position(3, 1, math.pi))
         done = True
+
+    move = decideMove()
+    if move is not None:
+        move()
+
     pass
 
 # Enter here exit cleanup code.
