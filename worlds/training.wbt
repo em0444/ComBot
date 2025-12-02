@@ -4,6 +4,7 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "../protos/Tiago++.proto"
+EXTERNPROTO "../protos/Tiago++SwordArm.proto"
 
 WorldInfo {
   basicTimeStep 4
@@ -25,7 +26,7 @@ DEF ComBot Tiago++ {
   name "ComBot"
   controller "combot_controller"
 }
-Tiago++ {
+Tiago++SwordArm {
   translation -2 0 0.1
   name "TrainingComBot"
   controller "training_combot_controller"
