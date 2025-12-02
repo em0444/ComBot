@@ -14,6 +14,19 @@ global combot
 
 # distance_sensors: List[DistanceSensor] = [device for device in combot.devices.values() if isinstance(device, DistanceSensor)]
 
+class InertialHeading:
+    def __init__(self):
+        self.inertial_unit = combot.getDevice("inertial unit")
+        self.inertial_unit.__init__("inertial unit")
+
+    def get_heading_in_radians(self) -> float:
+        roll_pitch_yaw = self.inertial_unit.getRollPitchYaw()
+        heading_in_radians = roll_pitch_yaw[2]
+        if heading_in_radians < 0:
+            heading_in_radians += 2 * math.pi
+        # print(f"heading in radians: {heading_in_radians}")
+        return heading_in_radians
+
 class Localisation:
     def __init__(self, combot_obj: Combot, num_particles=50):
         global combot
@@ -21,6 +34,7 @@ class Localisation:
 
         self.lidar_array = LidarArray()
         self.wheel_odometry = WheelOdometry()
+        self.inertial_heading = InertialHeading()
 
         initial_random_particles = [Particle(Position(0, 0, 2 * math.pi)) for _ in range(num_particles)]
         self.particles = initial_random_particles
@@ -43,8 +57,7 @@ class Localisation:
 
         for particle in self.particles:
             particle.position = copy(best_particle.position)
-
-        print(f"Current heading: {best_particle.position.heading_in_radians}")
+            particle.position = Position(x=particle.position.x, y=particle.position.y, heading_in_radians=self.inertial_heading.get_heading_in_radians())
 
         return copy(best_particle.position)
 

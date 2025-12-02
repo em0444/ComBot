@@ -45,7 +45,7 @@ class TurnDirection(Enum):
 
 def turn(turning_direction: TurnDirection) -> None:
     print(f"Initiating turn in direction {turning_direction}")
-    max_velocity = combot.getDevice("wheel_left_joint").getMaxVelocity() / 2
+    max_velocity = combot.getDevice("wheel_left_joint").getMaxVelocity() / 5
     speed_left, speed_right = 0.0, 0.0
 
     if turning_direction == TurnDirection.LEFT: # Right wheel forwards, left wheel backwards
@@ -65,7 +65,8 @@ def turn(turning_direction: TurnDirection) -> None:
     combot.getDevice("wheel_left_joint").setVelocity(speed_left)
     combot.getDevice("wheel_right_joint").setVelocity(speed_right)
 
-amount_required_to_slow_down = 0.2
+amount_required_to_slow_down = 0.25
+satisfactory_finished_distance = 0.1
 
 def rotate_to_heading(target_heading: float):
     print(f"rotating to heading {target_heading}")
@@ -81,20 +82,28 @@ def rotate_to_heading(target_heading: float):
     if delta_heading > 0:
         turn(TurnDirection.LEFT)
 
-    finished_turning = False
-    while not finished_turning:
+    finished_turn_procedure = False
+    while not finished_turn_procedure:
 
-        # Continue along for another timestep
-        combot.step(int(combot.getBasicTimeStep()))
+        # Continue along for another 10 timesteps
+        for i in range(10):
+            combot.step(int(combot.getBasicTimeStep()))
 
         # See if we need to start slowing down
         combot.update_internal_position_model()
-        current_heading = combot.get_position().heading_in_radians
+        current_heading = combot.localisation.inertial_heading.get_heading_in_radians()
         if abs(target_heading - current_heading) <= amount_required_to_slow_down:
             turn(TurnDirection.STOP)
-            finished_turning = True
+            finished_turn_procedure = True
 
-    print("Finished Turning")
+    #Wait for the robot to finish the turn before we do anything else
+    while abs(target_heading - current_heading) >= satisfactory_finished_distance:
+        for i in range(10):
+            combot.step(int(combot.getBasicTimeStep()))
+
+        current_heading = combot.localisation.inertial_heading.get_heading_in_radians()
+
+    print(f"Finished Turning... Current heading {current_heading}")
 
 
     timestep = combot.getBasicTimeStep()
