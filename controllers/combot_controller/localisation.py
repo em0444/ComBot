@@ -1,8 +1,11 @@
 from __future__ import annotations
 import math
 import random
+from copy import copy
 from dataclasses import dataclass
-from typing import List, Tuple, Optional
+
+from controllers.combot_controller.shared_dataclasses import Position
+from typing import List, Tuple
 
 from controller import PositionSensor, Lidar
 from controllers.combot_controller.combot import Combot
@@ -19,11 +22,11 @@ class Localisation:
         self.lidar_array = LidarArray()
         self.wheel_odometry = WheelOdometry()
 
-        initial_random_particles = [Particle(Position(0, 0, math.pi)) for _ in range(num_particles)]
+        initial_random_particles = [Particle(Position(0, 0, 2 * math.pi)) for _ in range(num_particles)]
         self.particles = initial_random_particles
         self.num_particles = num_particles
 
-    def get_position(self) -> Tuple[float, float]:
+    def update_internal_position_model(self) -> Position:
 
         odometry_change_data = self.wheel_odometry.get_odometry_change_since_last_query()
         lidar_data = self.lidar_array.get_lidar_map()
@@ -36,11 +39,38 @@ class Localisation:
         for particle in self.particles:
             particle.calculate_normalised_weight(max_log_likelihood, min_log_likelihood, self.num_particles)
 
-        self.particles = random.choices(self.particles, weights=[p.normalised_weight for p in self.particles], k=self.num_particles) # Perform the actual resampling step
+        best_particle = sorted(self.particles, key=lambda p: p.normalised_weight, reverse=True)[0]
 
-        best_three_particles = sorted(self.particles, key=lambda p: p.normalised_weight, reverse=True)[:3]
-        print((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
-        return((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
+        for particle in self.particles:
+            particle.position = copy(best_particle.position)
+
+        print(f"Current heading: {best_particle.position.heading_in_radians}")
+
+        return copy(best_particle.position)
+
+
+
+        # test_particles = []
+        # for i in range(5):
+        #     for j in range(5):
+        #         some_particle = Particle(Position(x=(i*0.5), y=(j*0.5), heading_in_radians=math.pi))
+        #         test_particles.append(some_particle)
+        #
+        # self.particles = test_particles
+        #
+        # for particle in self.particles:
+        #     particle.calculate_log_likelihood(odometry_change_data, lidar_data)
+        #
+        # max_log_likelihood, min_log_likelihood = max([p.log_likelihood for p in self.particles]), min([p.log_likelihood for p in self.particles])
+        #
+        # for particle in self.particles:
+        #     particle.calculate_normalised_weight(max_log_likelihood, min_log_likelihood, self.num_particles)
+        #
+        # self.particles = random.choices(self.particles, weights=[p.normalised_weight for p in self.particles], k=self.num_particles) # Perform the actual resampling step
+        #
+        # best_three_particles = sorted(self.particles, key=lambda p: p.normalised_weight, reverse=True)[:3]
+        # print((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
+        # return((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
 
 
 
@@ -93,7 +123,7 @@ class LidarArray:
 
         indexed_left_vision = [((3*math.pi)/2 + (i/len(left_vision))*(math.pi/2), v) for i, v in enumerate(left_vision)]
         indexed_right_vision = [(i/len(left_vision)*math.pi/2, v)  for i, v in enumerate(right_vision)]
-        vision = [(i, v) for (i, v) in indexed_left_vision + indexed_right_vision if not math.isinf(v)]
+        vision = [(i, v) for (i, v) in indexed_left_vision + indexed_right_vision if not (math.isinf(v) or v < 0.2)]
         vision = [LidarRay(distance=distance, angle_in_radians=angle) for angle, distance in vision]
 
         return vision
@@ -201,55 +231,3 @@ class LidarRay:
     def change_distance(self, distance_to_add):
         return LidarRay(self.distance + distance_to_add, self.angle_in_radians)
 
-@dataclass(frozen=True)
-class Position:
-    x: float
-    y: float
-    heading_in_radians: float
-
-    def as_tuple(self) -> Tuple[float, float, float]:
-        return self.x, self.y, self.heading_in_radians
-
-    def add(self, delta_x, delta_y, delta_theta) -> Position:
-        return Position(self.x + delta_x, self.y + delta_y, (self.heading_in_radians + delta_theta) % (2 * math.pi))
-
-    def is_in_map(self) -> bool:
-        """
-        Return if the position is inside the map.
-        """
-
-        # If it's outside the main box, return false
-        max_x, max_y, min_x, min_y = 5, 2.5, -5, -2.5
-        if self.x > max_x or self.x < min_x:
-            return False
-
-        if self.y > max_y or self.y < min_y:
-            return False
-
-        #(1,1) square in the corner
-        if self.x > 4 and self.y>1.5:
-            return False
-
-        #(1.5, 1) square in the corner
-        if self.x > 3.5 and self.y<-1.5:
-            return False
-
-        #(0.5, 2) square in the corner
-        if self.x <-4.5 and self.y<-0.5:
-            return False
-
-        #(2, 2) square in the corner
-        if self.x<-3 and self.y>0.5:
-            return False
-        return True
-
-    @classmethod
-    def make_random(cls) -> Position:
-        """
-        Make a new random position within the map boundary. If it's not legal (i.e. obstructed by an obstacle) try again.
-        """
-        candidate_position = Position(random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(0, (2 * math.pi)))
-        if candidate_position.is_in_map():
-            return candidate_position
-        else:
-            return Position.make_random()

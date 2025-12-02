@@ -9,23 +9,47 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.41263972909654817 0.014613993359786878 0.910777077648097 3.0771125827297774
-  position 4.145914489204661 -1.0395164159203722 4.3111921792178975
+  orientation -0.5073668182470399 0.4936039159968765 0.7063526639394967 1.9374439691288785
+  position -2.2449204557017888 -6.067106183277799 10.815058081212445
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
 RectangleArena {
-  floorSize 10 10
-  wallHeight 5
+  floorSize 10 5
+  wallHeight 3
+}
+RectangleArena {
+  translation -4 1.5 0
+  name "rectangle arena(1)"
+  floorSize 2 2
+  wallHeight 3
+}
+RectangleArena {
+  translation 4.5 2 0
+  name "rectangle arena(2)"
+  wallHeight 3
+}
+RectangleArena {
+  translation 4.25 -2 0
+  name "rectangle arena(3)"
+  floorSize 1.5 1
+  wallHeight 3
+}
+RectangleArena {
+  translation -4.73 -1.5 0
+  name "rectangle arena(4)"
+  floorSize 0.5 2
+  wallHeight 3
 }
 Tiago++ {
   name "ComBot"
   controller "<extern>"
+  supervisor TRUE
   lidarSlot [
     VelodyneVLP-16 {
-      translation 0 0 1.62
+      translation -0.41 0 0.24
     }
   ]
 }
