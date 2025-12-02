@@ -1,0 +1,83 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/BrushedAluminium.proto"
+
+PROTO FencingSwordAsSlot [
+  field SFVec3f    translation         0 0.2 -0.05
+  field SFRotation rotation            0 0 1 0
+  field SFString   name                "Fencing Sword"
+  field SFString   contactMaterial     "default"
+  field MFNode     children            [] 
+  field SFFloat    mass                1
+  field SFVec3f    meshScale           0.01 0.01 0.01
+  field SFBool     locked              FALSE
+  field SFVec3f    linearVelocity      0 0 0
+  field SFVec3f    angularVelocity     0 0 0
+]
+{
+  Slot {
+    type "tiago hand"
+    endPoint Solid {
+        translation IS translation
+        rotation IS rotation
+        name IS name
+        model "Fencing Sword"
+        contactMaterial IS contactMaterial
+        locked IS locked
+        linearVelocity IS linearVelocity
+        angularVelocity IS angularVelocity
+
+        children [
+        # Visual Mesh for Fencing Foil
+        Transform {
+            scale IS meshScale
+            children [
+            Shape {
+                castShadows FALSE
+                appearance BrushedAluminium {
+                }
+                geometry Mesh {
+                url [ "../protos/icons/sword.obj" ] 
+                }
+            }
+            ]
+        }
+        
+        # TODO: add TouchSensors here
+        Group {
+            children IS children
+        }
+        ]
+
+        # Bespoke Collision (Hardcoded for Fencing)
+        boundingObject Group {
+        children [
+            Pose { # Handle
+            translation 0 -0.21 0.06
+            children [
+                Sphere {
+                radius 0.12
+                }
+            ]
+            }
+            Pose { # Blade
+            translation 3.9109e-05 0.21 0.06
+            rotation -1 0 0 1.5708
+            children [
+                Capsule {
+                height 0.67
+                radius 0.04
+                subdivision 16
+                }
+            ]
+            }
+        ]
+        }
+
+        # Average mass of a fencing foil
+        physics Physics {
+        mass IS mass
+        }
+    }
+  }
+}

@@ -8,7 +8,7 @@ from initialisation import initialise_motors
 
 from fencing_actions import lunge, parry_high, parry_low, en_garde, move_to_pose
 from combot import Combot
-from strategy import decideMove
+import strategy as strat
 decideMove = lambda : None
 wb = c_webots_api.wb
 
@@ -79,7 +79,7 @@ while combot.step(timestep) != -1:
         combot.move_to_position(Position(3, 1, math.pi))
         done = True
 
-    move = decideMove()
+    move = strat.strategy7(combot)
     if move is not None:
         move()
 
