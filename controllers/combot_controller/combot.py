@@ -1,6 +1,8 @@
-from typing import List
+import math
+from typing import List, Tuple
 
 from controller import Robot
+from controllers.combot_controller.shared_dataclasses import Position
 
 
 class Combot(Robot):
@@ -17,12 +19,23 @@ class Combot(Robot):
         if self._initialized:
             return
         super().__init__()
+        self.localisation = None
         self._initialized = True
+        self.position = Position(0, 0, 0)
 
-    def get_position(self) -> List[float]:
-        from localisation import get_position
-        return get_position()
-    
+    def update_internal_position_model(self) -> None:
+        if self.localisation is None:
+            from controllers.combot_controller.localisation import Localisation
+            self.localisation = Localisation(combot_obj=self)
+        self.position = self.localisation.update_internal_position_model()
+
+    def get_position(self) -> Position:
+        return self.position
+
+    def move_to_position(self, position: Position) -> None:
+        from controllers.combot_controller.movement import move_to_position
+        move_to_position(combot_obj=self, target_pos=position)
+
     def get_arm_position(self):
         raise NotImplementedError()
     
@@ -30,6 +43,11 @@ class Combot(Robot):
         raise NotImplementedError()
     
     def get_enemy_position(self):
+        if self.localisation is None:
+            from controllers.combot_controller.localisation import Localisation
+            self.localisation = Localisation(combot_obj=self)
+        self.position = self.localisation.get_enemy_position()
+
         raise NotImplementedError()
     
     def get_enemy_arm_position(self):

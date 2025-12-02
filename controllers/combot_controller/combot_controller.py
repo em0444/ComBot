@@ -1,7 +1,11 @@
 """combot controller."""
+import math
 
 from controller import wb as c_webots_api, \
     Motor  # The wb package gives you all the C-like methods, but the controller package wraps most of them in nicer-to-use classes.
+from controllers.combot_controller.shared_dataclasses import Position
+from initialisation import initialise_motors
+
 from fencing_actions import lunge, parry_high, parry_low, en_garde, move_to_pose
 from combot import Combot
 from strategy import decideMove
@@ -43,7 +47,6 @@ def check_manual_fencing_action(key_code):
     elif key_code == 82:  # R (En Guard)
         en_garde()
 
-# combot.get_position()
 
 timestep = int(combot.getBasicTimeStep())
 
@@ -51,6 +54,10 @@ wb.wb_keyboard_enable(timestep)
 
 # Main loop:
 # - perform simulation steps until Webots is stopping the controller
+done = False
+
+combot.getDevice("wheel_left_joint").setVelocity(0.0)
+combot.getDevice("wheel_right_joint").setVelocity(0.0)
 while combot.step(timestep) != -1:
     # Read the sensors:
     # Enter here functions to read sensor data, like:
@@ -64,6 +71,13 @@ while combot.step(timestep) != -1:
 
     check_keyboard(key)
     check_manual_fencing_action(key)
+    combot.update_internal_position_model()
+    # combot.get_position()
+    print(combot.get_position())
+    if not done:
+        print("sending command to move robot to position...")
+        combot.move_to_position(Position(3, 1, math.pi))
+        done = True
 
     move = decideMove()
     if move is not None:
