@@ -54,6 +54,9 @@ wb.wb_keyboard_enable(timestep)
 # Main loop:
 # - perform simulation steps until Webots is stopping the controller
 done = False
+
+combot.getDevice("wheel_left_joint").setVelocity(0.0)
+combot.getDevice("wheel_right_joint").setVelocity(0.0)
 while combot.step(timestep) != -1:
     # Read the sensors:
     # Enter here functions to read sensor data, like:
@@ -70,10 +73,10 @@ while combot.step(timestep) != -1:
     combot.update_internal_position_model()
     # combot.get_position()
     print(combot.get_position())
-    # if not done:
-    #     print("sending command to move robot to position...")
-    #     combot.move_to_position(Position(1, 3, math.pi / 2))
-    #     done = True
-    # pass
+    if not done:
+        print("sending command to move robot to position...")
+        combot.move_to_position(Position(1, 3, math.pi / 2))
+        done = True
+    pass
 
 # Enter here exit cleanup code.
