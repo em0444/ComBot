@@ -68,10 +68,12 @@ while combot.step(timestep) != -1:
     check_keyboard(key)
     check_manual_fencing_action(key)
     combot.update_internal_position_model()
-    if not done:
-        print("sending command to move robot to position...")
-        combot.move_to_position(Position(1, 3, math.pi / 2))
-        done = True
-    pass
+    # combot.get_position()
+    print(combot.get_position())
+    # if not done:
+    #     print("sending command to move robot to position...")
+    #     combot.move_to_position(Position(1, 3, math.pi / 2))
+    #     done = True
+    # pass
 
 # Enter here exit cleanup code.

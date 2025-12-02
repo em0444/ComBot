@@ -205,11 +205,11 @@ class Particle:
         delta_sl, delta_sr, axle_radius = odometry_change_data.as_tuple()
 
         delta_theta = (delta_sl - delta_sr) / axle_radius # Calculate the new heading based on axle radius
-        new_heading = (self.position.heading_in_radians + delta_theta ) % (2 * math.pi)
+        heading = self.position.heading_in_radians
 
         delta_s = (delta_sl + delta_sr) / 2 # Update x and y according to equations
-        delta_x = delta_s * math.cos(new_heading + delta_theta / 2)
-        delta_y = delta_s * math.sin(new_heading + delta_theta / 2)
+        delta_x = delta_s * math.cos(heading + delta_theta / 2)
+        delta_y = delta_s * math.sin(heading + delta_theta / 2)
 
         delta_x += random.gauss(0, 0.005) # Add gaussian uncertainty
         delta_y += random.gauss(0, 0.005)
