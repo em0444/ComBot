@@ -2,7 +2,8 @@
 
 from controller import wb as c_webots_api, \
     Motor  # The wb package gives you all the C-like methods, but the controller package wraps most of them in nicer-to-use classes.
-from fencing_actions import lunge, parry_high, parry_low, en_garde, move_to_pose, get_joint_angles, enable_sensors
+from fencing_actions import lunge, parry_high, parry_low, en_garde, enable_sensors, open_hand, close_hand
+from ikpy_integration import initialise_ikpy_integration
 from combot import Combot
 from strategy import decideMove
 decideMove = lambda : None
@@ -42,7 +43,12 @@ def check_manual_fencing_action(key_code):
         parry_low()
     elif key_code == 82:  # R (En Guard)
         en_garde()
-
+    elif key_code == 79:  # O (Open Hand)
+        open_hand()
+    elif key_code == 67:  # C (Close Hand)
+        close_hand()
+    elif key_code == 65:  # A (Move Right Arm)
+        initialise_ikpy_integration() # Initialize IKPY and move arm to opponent position
 # combot.get_position()
 
 timestep = int(combot.getBasicTimeStep())
@@ -73,6 +79,12 @@ while combot.step(timestep) != -1:
 
     check_keyboard(key)
     check_manual_fencing_action(key)
+
+    # # enable RGBD camera
+    # rgb_camera = wb.wb_robot_get_device("Astra rgb")
+    # wb.wb_camera_enable(rgb_camera, timestep)
+    # depth_camera = wb.wb_robot_get_device("Astra depth")
+    # wb.wb_range_finder_enable(depth_camera, timestep)
 
     move = decideMove()
     if move is not None:
