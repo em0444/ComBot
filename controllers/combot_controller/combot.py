@@ -1,9 +1,9 @@
 from typing import List
 
-from controller import Robot
+from controller import Supervisor
 
 
-class Combot(Robot):
+class Combot(Supervisor):
     _instance = None
     changing_state = False
     current_state = "DEFAULT"
@@ -37,3 +37,7 @@ class Combot(Robot):
     
     def get_enemy_sword_position(self):
         raise NotImplementedError()
+    
+    # def sword_is_contacting(self):
+    #     supervisor_contact_points = self.supervisor_obj.getFromDef("FENCING_SWORD_SOLID").getContactPoints()
+    #     return len(supervisor_contact_points) > 0 # If you want this to be less sensitive in future, set this = 1
