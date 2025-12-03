@@ -1,9 +1,8 @@
 import math
 from typing import List, Tuple
 
-from controller import Supervisor
-from controllers.combot_controller.shared_dataclasses import Position
-
+from controller import Supervisor, Robot
+from shared_dataclasses import Position
 
 class Combot(Supervisor):
     _instance = None
@@ -29,7 +28,7 @@ class Combot(Supervisor):
 
     def update_internal_position_model(self) -> None:
         if self.localisation is None:
-            from controllers.combot_controller.localisation import Localisation
+            from localisation import Localisation
             self.localisation = Localisation(combot_obj=self)
         self.position = self.localisation.update_internal_position_model()
 
@@ -37,7 +36,7 @@ class Combot(Supervisor):
         return self.position
 
     def move_to_position(self, position: Position) -> None:
-        from controllers.combot_controller.movement import move_to_position
+        from movement import move_to_position
         move_to_position(combot_obj=self, target_pos=position)
 
     def get_arm_position(self):
@@ -48,7 +47,7 @@ class Combot(Supervisor):
     
     def get_enemy_position(self):
         if self.localisation is None:
-            from controllers.combot_controller.localisation import Localisation
+            from localisation import Localisation
             self.localisation = Localisation(combot_obj=self)
         self.position = self.localisation.get_enemy_position()
 
