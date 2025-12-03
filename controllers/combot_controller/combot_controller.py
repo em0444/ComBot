@@ -1,11 +1,13 @@
 """combot controller."""
+import math
 
 from controller import wb as c_webots_api, \
     Motor  # The wb package gives you all the C-like methods, but the controller package wraps most of them in nicer-to-use classes.
+from controllers.combot_controller.shared_dataclasses import Position
 from fencing_actions import lunge, parry_high, parry_low, en_garde, enable_sensors, open_hand, close_hand
 from ikpy_integration import initialise_ikpy_integration
 from combot import Combot
-from strategy import decideMove
+import strategy as strat
 decideMove = lambda : None
 wb = c_webots_api.wb
 
@@ -66,6 +68,10 @@ print("Sensors ready.")
 
 # Main loop:
 # - perform simulation steps until Webots is stopping the controller
+done = False
+
+combot.getDevice("wheel_left_joint").setVelocity(0.0)
+combot.getDevice("wheel_right_joint").setVelocity(0.0)
 while combot.step(timestep) != -1:
     # Read the sensors:
     # Enter here functions to read sensor data, like:
@@ -79,6 +85,13 @@ while combot.step(timestep) != -1:
 
     check_keyboard(key)
     check_manual_fencing_action(key)
+    combot.update_internal_position_model()
+    # combot.get_position()
+    print(combot.get_position())
+    if not done:
+        print("sending command to move robot to position...")
+        combot.move_to_position(Position(3, 1, math.pi))
+        done = True
 
     # # enable RGBD camera
     # rgb_camera = wb.wb_robot_get_device("Astra rgb")
@@ -86,7 +99,7 @@ while combot.step(timestep) != -1:
     # depth_camera = wb.wb_robot_get_device("Astra depth")
     # wb.wb_range_finder_enable(depth_camera, timestep)
 
-    move = decideMove()
+    move = strat.strategy7(combot)
     if move is not None:
         move()
 
