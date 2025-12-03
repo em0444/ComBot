@@ -7,14 +7,12 @@ EXTERNPROTO "../protos/Tiago++.proto"
 EXTERNPROTO "../protos/FencingSword.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/tables/protos/Table.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/rocks/protos/Rock.proto"
-EXTERNPROTO "../protos/FencingSword.proto"
-
 WorldInfo {
   basicTimeStep 4
 }
 Viewpoint {
-  orientation -0.5773 0.5773 0.5773 2.0944
-  position 0 0 10
+  orientation -0.09995456429528808 -0.07435675181835241 0.9922097351546006 4.413317285055138
+  position 2.9091263821640685 9.011648503111132 2.0868801715329166
 }
 TexturedBackground {
 }
@@ -27,7 +25,7 @@ Tiago++ {
   name "ComBot"
   controller "combot_controller"
 }
-FencingSword {
+DEF FENCING_SWORD_SOLID FencingSword {
   translation 1 -0.02 0.54
 }
 Table {
@@ -36,4 +34,7 @@ Table {
 }
 Rock {
   translation 1.14 -0.14 0.6
+}
+DEF OPP Tiago++ {
+  translation -3.13 0 0.095
 }
