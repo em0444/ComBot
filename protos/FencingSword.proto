@@ -15,7 +15,7 @@ PROTO FencingSword [
   field SFVec3f    angularVelocity     0 0 0
 ]
 {
-  Solid {
+  DEF FENCING_SWORD_SOLID Solid {
     translation IS translation
     rotation IS rotation
     name IS name
@@ -40,6 +40,23 @@ PROTO FencingSword [
           }
         ]
       }
+
+    # 2. THE CONNECTOR (New Addition)
+    # This creates a "magnet point" at the handle location.
+    Pose {
+      translation 0 -0.25 0.06  # Same position as your handle collision
+      rotation 1 0 0 1.5708     # Same rotation (aligned with handle)
+      children [
+        DEF SWORD_CONNECTOR Connector {
+          type "symmetric"      # Can connect to any symmetric connector
+          isLocked FALSE        # Starts unlocked
+          autoLock TRUE         # Automatically locks when robot touches it
+          distanceTolerance 0.02 # How close the hand must be (2cm)
+          axisTolerance 0.2     # Angle tolerance (radians)
+          rotationTolerance 3.14 # Allows grabbing from any rotation around axis
+        }
+      ]
+    }
      
       # TODO: add TouchSensors here
       Group {
