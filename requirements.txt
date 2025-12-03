@@ -1,0 +1,4 @@
+git+https://github.com/alters-mit/ikpy.git#egg=ikpy
+urdf-parser-py
+numpy
+matplotlib
