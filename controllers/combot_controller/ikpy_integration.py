@@ -30,9 +30,9 @@ RIGHT_SENSOR_NAMES = [
 
 def create_urdf():
     # Generate URDF file from Combot model, only ran once
-    # with open("tiago_urdf.urdf", "w") as file:  
+    # with open("tiago_new_urdf.urdf", "w") as file:  
     #     file.write(combot.getUrdf())
-    urdf_root = urdf_model.URDF.from_xml_file("tiago_urdf.urdf")
+    urdf_root = urdf_model.URDF.from_xml_file("tiago_new_urdf.urdf")
     return urdf_root
 
 def get_joint_limits(urdf_root):
@@ -69,8 +69,8 @@ def create_ik_chain() -> Chain:
     ]
 
     right_arm_chain = Chain.from_urdf_file(
-        "tiago_urdf.urdf",
-        last_link_vector=[0.004, 0, -0.1741], # end effector offset
+        "tiago_new_urdf.urdf",
+        last_link_vector=[0.2, -0.000001, -0.05], # end effector offset
         base_elements=base_elements,
         name="right_arm_chain"
     )
@@ -175,7 +175,7 @@ def initialise_ikpy_integration():
     my_chain = initialise_chain(create_ik_chain())
     arm_angles = get_right_joint_angles()
     # I've got one disabled line at the front and four at the end
-    initial_position = [0] + [angle for angle in arm_angles.values()] + [0,0,0,0]
+    initial_position = [0] + [angle for angle in arm_angles.values()] + [0,0,0]
 
     print("Initial Chain Position:", initial_position)
 
@@ -184,10 +184,9 @@ def initialise_ikpy_integration():
     ikResults = my_chain.inverse_kinematics(
         target_position=offset_target,  
         target_orientation = [0,0,1], 
-        orientation_mode="Y")
+        orientation_mode="X")
     
     print("IK Results:", ikResults)
-
 
     for res in range(len(ikResults)):
         # This if check will ignore anything that isn't controllable
