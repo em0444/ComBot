@@ -188,36 +188,6 @@ FINGER_GRIPPERS = [
     "right_hand_gripper_left_finger_joint"
 ]
 
-def open_hand(positions=[0.045]):
-    """Moves the robot to the specified joint positions.
-
-    Args:
-        positions (list[float]): List of target joint positions.
-    """
-    finger_node = combot.getFromDef("RIGHT_GRIPPER_JOINT")
-    # combot_position = finger_node.getPosition()
-    # print("Current Gripper Position:", combot_position)
-    
-    for part_name, position in zip(FINGER_GRIPPERS, positions):
-        motor = combot.getDevice(part_name)
-        motor.setVelocity(motor.getVelocity())
-        motor.setPosition(position)
-
-def close_hand(positions=[0.0]):
-    """Moves the robot to the specified joint positions.
-
-    Args:
-        positions (list[float]): List of target joint positions.
-    """
-
-    # finger_node = combot.getFromDef("RIGHT_GRIPPER_JOINT")
-    # combot_position = finger_node.getPosition()
-    # print("Current Gripper Position:", combot_position)
-    for part_name, position in zip(FINGER_GRIPPERS, positions):
-        motor = combot.getDevice(part_name)
-        motor.setVelocity(motor.getVelocity())
-        motor.setPosition(position)
-
 def move_forward():
     combot.base_state = (combot.base_state,"FORWARD")
     combot.changing_base_state = True
