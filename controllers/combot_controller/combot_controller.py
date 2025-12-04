@@ -6,8 +6,7 @@ from controller import wb as c_webots_api, \
     Motor  # The wb package gives you all the C-like methods, but the controller package wraps most of them in nicer-to-use classes.
 from combot import Combot
 from shared_dataclasses import Position
-import fencing_actions as fence
-from ikpy_integration import initialise_ikpy_integration
+from arm_controller import ArmController
 import strategy as strat
 
 # Keyboard codes (Webots specific)
@@ -41,14 +40,14 @@ def handle_movement_speed(key, max_speed):
     
     return speed_left, speed_right
             
-def handle_fencing_action(key: int):
+def handle_fencing_action(key: int, arm: ArmController):
     # Map keys to functions
     action_map: Dict[int, Callable] = {
-        KEY_LUNGE:      fence.lunge,
-        KEY_PARRY_HIGH: fence.parry_high,
-        KEY_PARRY_LOW:  fence.parry_low,
-        KEY_EN_GARDE:   fence.en_garde,
-        KEY_MOVE_ARM:   initialise_ikpy_integration
+        KEY_LUNGE:      arm.lunge,
+        KEY_PARRY_HIGH: arm.parry_high,
+        KEY_PARRY_LOW:  arm.parry_low,
+        KEY_EN_GARDE:   arm.en_garde,
+        KEY_MOVE_ARM:   arm.initialise_ikpy_integration
     }
     # Execute if key exists in map
     if key in action_map:
@@ -56,10 +55,13 @@ def handle_fencing_action(key: int):
 
 def main():
     combot: Combot = Combot()
+    arm: ArmController = ArmController(combot)
     timestep = int(combot.getBasicTimeStep())
 
     wb.wb_keyboard_enable(timestep)
-    fence.enable_sensors()
+
+    # ds = combot.getDevice("sword_distance_sensor")
+    # ds.enable(10) # Enable with 10ms timestep
 
     left_wheel = combot.getDevice("wheel_left_joint")
     right_wheel = combot.getDevice("wheel_right_joint")
@@ -71,6 +73,7 @@ def main():
     right_wheel.setVelocity(0.0)
 
     # Ensures sensors are enabled before reading them
+    arm.enable_sensors()
     for _ in range(5):
         combot.step(timestep)
     print("Sensors ready.")
@@ -82,17 +85,22 @@ def main():
 
             key = wb.wb_keyboard_get_key()
 
+            # val = ds.getValue()
+            # print(f"Distance to tip target: {val}") 
+
             if key > 0:
                 max_speed = left_wheel.getMaxVelocity()
                 speed_left, speed_right = handle_movement_speed(key, max_speed)
 
                 left_wheel.setVelocity(speed_left)
                 right_wheel.setVelocity(speed_right)
+
+                handle_fencing_action(key, arm)
             else:
                 left_wheel.setVelocity(0.0)
                 right_wheel.setVelocity(0.0)
 
-            handle_fencing_action(key)
+            
 
             # combot.update_internal_position_model()
             # print(combot.get_position())
