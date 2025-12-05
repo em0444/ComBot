@@ -43,7 +43,19 @@ PROTO FencingSwordAsSlot [
             ]
         }
         
-        # TODO: add TouchSensors here
+        TouchSensor {
+            translation 0 0.56 0.06  # Placed at the very tip of the blade
+            name "sword_tip_sensor" 
+            boundingObject Pose {
+                rotation 1 0 0 0     # Align with blade
+                children [
+                    Sphere {
+                        radius 0.03  # Small sensitive zone at the tip
+                    }
+                ]
+            }
+            type "bumper"            # Detects contact
+        }
         Group {
             children IS children
         }
@@ -66,7 +78,7 @@ PROTO FencingSwordAsSlot [
             children [
                 Capsule {
                 height 0.67
-                radius 0.04
+                radius 0.03
                 subdivision 16
                 }
             ]

@@ -1,11 +1,10 @@
 import math
 from typing import List, Tuple
 
-from controller import Robot
-from controllers.combot_controller.shared_dataclasses import Position
+from controller import Supervisor, Robot
+from shared_dataclasses import Position
 
-
-class Combot(Robot):
+class Combot(Supervisor):
     _instance = None
     changing_body_state = False
     body_state = "DEFAULT"
@@ -29,7 +28,7 @@ class Combot(Robot):
 
     def update_internal_position_model(self) -> None:
         if self.localisation is None:
-            from controllers.combot_controller.localisation import Localisation
+            from localisation import Localisation
             self.localisation = Localisation(combot_obj=self)
         self.position = self.localisation.update_internal_position_model()
 
@@ -37,7 +36,7 @@ class Combot(Robot):
         return self.position
 
     def move_to_position(self, position: Position) -> None:
-        from controllers.combot_controller.movement import move_to_position
+        from movement import move_to_position
         move_to_position(combot_obj=self, target_pos=position)
 
     def get_arm_position(self):
@@ -48,7 +47,7 @@ class Combot(Robot):
     
     def get_enemy_position(self):
         if self.localisation is None:
-            from controllers.combot_controller.localisation import Localisation
+            from localisation import Localisation
             self.localisation = Localisation(combot_obj=self)
         self.position = self.localisation.get_enemy_position()
 
@@ -59,3 +58,7 @@ class Combot(Robot):
     
     def get_enemy_sword_position(self):
         raise NotImplementedError()
+    
+    # def sword_is_contacting(self):
+    #     supervisor_contact_points = self.supervisor_obj.getFromDef("FENCING_SWORD_SOLID").getContactPoints()
+    #     return len(supervisor_contact_points) > 0 # If you want this to be less sensitive in future, set this = 1
