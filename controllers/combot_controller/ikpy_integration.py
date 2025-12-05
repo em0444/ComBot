@@ -12,12 +12,6 @@ import fencing_constants as fc
 
 np.float = float  # Fix for ikpy compatibility with numpy>=1.24
 
-RIGHT_SENSOR_NAMES = [
-    "arm_right_1_joint_sensor",  "arm_right_2_joint_sensor",  "arm_right_3_joint_sensor",
-    "arm_right_4_joint_sensor",  "arm_right_5_joint_sensor",  "arm_right_6_joint_sensor",
-    "arm_right_7_joint_sensor"
-]
-
 # Initialise the Robot Singleton and timestep
 combot = Combot()
 timestep = int(combot.getBasicTimeStep())
@@ -40,7 +34,7 @@ def get_right_joint_angles() -> dict:
     """Returns a dictionary of joint angles from all enabled sensors."""
     angles = {}
     
-    for link in RIGHT_SENSOR_NAMES:
+    for link in fc.RIGHT_SENSOR_NAMES:
         sensor = combot.getDevice(link)
         value = sensor.getValue()
         angles[sensor.name] = value

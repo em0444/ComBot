@@ -70,3 +70,9 @@ SENSOR_NAMES = [
     "arm_left_3_joint_sensor",   "arm_left_4_joint_sensor",   "arm_left_5_joint_sensor",
     "arm_left_6_joint_sensor",   "arm_left_7_joint_sensor"
 ]
+
+RIGHT_SENSOR_NAMES = [
+    "arm_right_1_joint_sensor",  "arm_right_2_joint_sensor",  "arm_right_3_joint_sensor",
+    "arm_right_4_joint_sensor",  "arm_right_5_joint_sensor",  "arm_right_6_joint_sensor",
+    "arm_right_7_joint_sensor"
+]
