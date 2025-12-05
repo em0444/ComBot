@@ -7,6 +7,8 @@ from controller import wb as c_webots_api, \
 from combot import Combot
 from shared_dataclasses import Position
 from arm_controller import ArmController
+import fencing_constants as fc
+import fencing_actions as fence
 import strategy as strat
 
 # Keyboard codes (Webots specific)
@@ -43,10 +45,10 @@ def handle_movement_speed(key, max_speed):
 def handle_fencing_action(key: int, arm: ArmController):
     # Map keys to functions
     action_map: Dict[int, Callable] = {
-        KEY_LUNGE:      arm.lunge,
-        KEY_PARRY_HIGH: arm.parry_high,
-        KEY_PARRY_LOW:  arm.parry_low,
-        KEY_EN_GARDE:   arm.en_garde,
+        KEY_LUNGE:      fence.lunge,
+        KEY_PARRY_HIGH: fence.parry_high,
+        KEY_PARRY_LOW:  fence.parry_low,
+        KEY_EN_GARDE:   fence.en_garde,
         KEY_MOVE_ARM:   arm.initialise_ikpy_integration
     }
     # Execute if key exists in map
@@ -55,9 +57,10 @@ def handle_fencing_action(key: int, arm: ArmController):
 
 def main():
     combot: Combot = Combot()
-    arm: ArmController = ArmController(combot)
     timestep = int(combot.getBasicTimeStep())
-
+    arm: ArmController = ArmController(combot, fc.RIGHT_ARM_CONFIG)
+    fence.init(arm)
+    
     wb.wb_keyboard_enable(timestep)
 
     # ds = combot.getDevice("sword_distance_sensor")
@@ -73,10 +76,11 @@ def main():
     right_wheel.setVelocity(0.0)
 
     # Ensures sensors are enabled before reading them
-    arm.enable_sensors()
-    for _ in range(5):
+    for _ in range(timestep + 1):
         combot.step(timestep)
     print("Sensors ready.")
+    print(arm.create_right_arm_chain())
+    # arm.get_right_joint_angles()
 
     done = False # Flag to ensure move_to_position is called only once
 
@@ -100,7 +104,7 @@ def main():
                 left_wheel.setVelocity(0.0)
                 right_wheel.setVelocity(0.0)
 
-            
+            fence.check_hit()
 
             # combot.update_internal_position_model()
             # print(combot.get_position())

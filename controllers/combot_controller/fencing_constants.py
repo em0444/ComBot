@@ -1,0 +1,72 @@
+"""
+fencing_constants.py
+Stores joint names, configuration, and PRESET ANGLES.
+"""
+
+# Configuration for the RIGHT arm (The Fencing Arm)
+RIGHT_ARM_CONFIG = {
+    "name": "arm_right_chain",
+    "base_elements": ["base_link", "arm_right_1_joint"],
+    # "tip_offset": [0.2, 0.0, -0.05], # gripper only
+    "tip_offset": [0.0, 0.75, 0.01],  # includes sword length
+    "joint_names": [
+        "arm_right_1_joint", "arm_right_2_joint", "arm_right_3_joint",
+        "arm_right_4_joint", "arm_right_5_joint", "arm_right_6_joint", "arm_right_7_joint"
+    ]
+}
+
+# Configuration for the LEFT arm (Future proofing)
+# LEFT_ARM_CONFIG = {
+#     "name": "arm_left_chain",
+#     "base_elements": ["base_link", "arm_left_1_joint"],
+#     "tip_offset": [0.2, 0.0, -0.05], 
+#     "joint_names": [
+#         "arm_left_1_joint", "arm_left_2_joint", "arm_left_3_joint",
+#         "arm_left_4_joint", "arm_left_5_joint", "arm_left_6_joint", "arm_left_7_joint"
+#     ]
+# }
+
+# --- PRESET JOINT ANGLES (Your original values) ---
+# Note: These lists must match the order of "joint_names" above.
+# Your original lists included head/torso/left arm. 
+# We will split them here for clarity, or you can pass the full list to the controller.
+
+# Pose Definitions
+# Standard defensive stance
+EN_GARDE_ANGLES = [
+    -0.3, 0.00, 0.35, 1.50, 1.1, 0.00, 1.57, 1.00, 
+    0.00, 0.00, -0.80, -0.50, -0.27, 1.57, -2.00, 1.20, 2.00
+]
+# Extends the sword arm forward
+LUNGE_ANGLES = [
+    0.3, 0.0, 0.15, 1.50, -0.3, -0.52, -0.02, 0.00, 
+    0.0, 0.0, -0.80, -0.2, -0.5, -0.10, 0.00, 0.20, 0.0
+]
+# Parry 1: Blocking High (Rotates wrist/forearm up and slightly in)
+PARRY_HIGH_ANGLES = [
+    0.3, 0.0, 0.25, 1.50, -0.3, -0.52, -0.02, 0.00, 
+    -1.11, -1.70, -0.20, -0.50, -0.27, 1.57, -2.00, 1.20, 2.0
+]
+# Parry 2: Blocking Low (Rotates forearm down and slightly out)
+PARRY_LOW_ANGLES = [
+    0.1, 0.0, 0.25, 1.50, 0.13, -0.12, -0.12, 0.00, 
+    -1.11, -1.70, -0.20, -0.50, -0.27, 1.77, -2.00, 1.20, 2.0
+]
+
+# Defines the order of parts for the big lists above
+FULL_BODY_PART_NAMES = [
+    "head_2_joint", "head_1_joint", "torso_lift_joint",
+    "arm_right_1_joint", "arm_right_2_joint", "arm_right_3_joint",
+    "arm_right_4_joint", "arm_right_5_joint", "arm_right_6_joint", "arm_right_7_joint",
+    "arm_left_1_joint", "arm_left_2_joint", "arm_left_3_joint",
+    "arm_left_4_joint", "arm_left_5_joint", "arm_left_6_joint", "arm_left_7_joint"
+]
+
+SENSOR_NAMES = [
+    "head_2_joint_sensor",       "head_1_joint_sensor",       "torso_lift_joint_sensor",
+    "arm_right_1_joint_sensor",  "arm_right_2_joint_sensor",  "arm_right_3_joint_sensor",
+    "arm_right_4_joint_sensor",  "arm_right_5_joint_sensor",  "arm_right_6_joint_sensor",
+    "arm_right_7_joint_sensor",  "arm_left_1_joint_sensor",   "arm_left_2_joint_sensor",
+    "arm_left_3_joint_sensor",   "arm_left_4_joint_sensor",   "arm_left_5_joint_sensor",
+    "arm_left_6_joint_sensor",   "arm_left_7_joint_sensor"
+]

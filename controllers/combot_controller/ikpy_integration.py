@@ -1,4 +1,5 @@
 # IKPY Integration
+import os
 from ikpy.chain import Chain
 from ikpy.link import OriginLink, URDFLink
 import combot
@@ -7,20 +8,9 @@ import urdf_parser_py.urdf as urdf_model
 import numpy as np
 import matplotlib.pyplot
 from mpl_toolkits.mplot3d import Axes3D
+import fencing_constants as fc
 
 np.float = float  # Fix for ikpy compatibility with numpy>=1.24
-
-# Initialise the Robot Singleton and timestep
-combot = Combot()
-timestep = int(combot.getBasicTimeStep())
-
-ROBOT_PART_STRINGS = ["head_2_joint",      "head_1_joint",      "torso_lift_joint",  "arm_right_1_joint",
-                      "arm_right_2_joint", "arm_right_3_joint", "arm_right_4_joint", "arm_right_5_joint",
-                      "arm_right_6_joint", "arm_right_7_joint", "arm_left_1_joint",  "arm_left_2_joint",
-                      "arm_left_3_joint",  "arm_left_4_joint",  "arm_left_5_joint",  "arm_left_6_joint",
-                      "arm_left_7_joint", "arm_left_1_joint", "arm_left_2_joint",
-                      "arm_left_3_joint",  "arm_left_4_joint",  "arm_left_5_joint",  "arm_left_6_joint",
-                      "arm_left_7_joint"]
 
 RIGHT_SENSOR_NAMES = [
     "arm_right_1_joint_sensor",  "arm_right_2_joint_sensor",  "arm_right_3_joint_sensor",
@@ -28,12 +18,10 @@ RIGHT_SENSOR_NAMES = [
     "arm_right_7_joint_sensor"
 ]
 
-def create_urdf():
-    # Generate URDF file from Combot model, only ran once
-    # with open("tiago_new_urdf.urdf", "w") as file:  
-    #     file.write(combot.getUrdf())
-    urdf_root = urdf_model.URDF.from_xml_file("tiago_new_urdf.urdf")
-    return urdf_root
+# Initialise the Robot Singleton and timestep
+combot = Combot()
+timestep = int(combot.getBasicTimeStep())
+
 
 def get_joint_limits(urdf_root):
     joint_limits = {
@@ -60,66 +48,33 @@ def get_right_joint_angles() -> dict:
     print(angles)
     return angles
 
-def create_ik_chain() -> Chain:
-    # create_urdf()
+def create_right_arm_chain(filename) -> Chain:
     # Path: Base -> Torso -> Lift -> Arm Base -> Arm Segments -> Wrist
-    base_elements = [
-        "base_link",    
-        "arm_right_1_joint",     # beginning of right arm
-    ]
-
     right_arm_chain = Chain.from_urdf_file(
-        "tiago_new_urdf.urdf",
-        last_link_vector=[0.2, -0.000001, -0.05], # end effector offset
-        base_elements=base_elements,
-        name="right_arm_chain"
+        filename,
+        last_link_vector=fc.RIGHT_ARM_CONFIG["tip_offset"], # end effector offset
+        base_elements=fc.RIGHT_ARM_CONFIG["base_elements"],
+        name=fc.RIGHT_ARM_CONFIG["name"]
     )
 
-    print("IK Chain created: ", right_arm_chain, "\n with ", len(right_arm_chain.links), " links")
+    print("IK Chain created with ", len(right_arm_chain.links), " links")
 
     return activate_ik_chain(right_arm_chain)
 
 def activate_ik_chain(right_arm_chain: Chain):
     print("Activating IK Chain for right arm...")
-    print(right_arm_chain)
     for link_id in range(len(right_arm_chain.links)):
-
         # This is the actual link object
         link = right_arm_chain.links[link_id]
         print("Link {}: {}".format(link_id, link.name))
         
-        if link.name not in ROBOT_PART_STRINGS or  link.name =="torso_lift_joint":
+        if link.name not in fc.FULL_BODY_PART_NAMES or  link.name =="torso_lift_joint":
             print("Disabling {}".format(link.name))
             right_arm_chain.active_links_mask[link_id] = False
         
-    # active_links = [right_arm_chain.links[i].name for i in range(len(right_arm_chain.links)) if right_arm_chain.active_links_mask[i]]
-    # print("Active links:", active_links)
-    return initialise_chain(right_arm_chain)
-
-def initialise_chain(right_arm_links: Chain):
-    # right_arm_active_links = activate_ik_chain(right_arm_active_links)
-    motors = []
-    position_sensors = []
-    for link in right_arm_links.links:
-        if link.name in ROBOT_PART_STRINGS and link.name !="torso_lift_joint":
-            motor = combot.getDevice(link.name)
-            print("Setting motor velocity for link: {}".format(motor.getName()))
-
-            if link.name == "torso_lift_joint":
-                motor.setVelocity(0.07)
-            else:
-                motor.setVelocity(1.0)
-
-            # Enable position sensors
-            position_sensor = motor.getPositionSensor()
-            position_sensor.enable(timestep)
-            motors.append(motor)
-            position_sensors.append(position_sensor.name)
-
-    print(f"Total motors enabled: {len(motors)}")
-    print("Position Sensors enabled: ", position_sensors)
-
-    return right_arm_links
+    active_links = [right_arm_chain.links[i].name for i in range(len(right_arm_chain.links)) if right_arm_chain.active_links_mask[i]]
+    print("Active links:", active_links)
+    return right_arm_chain
 
 def get_opponent_position():
 
@@ -168,14 +123,14 @@ def get_opponent_position():
         opponent_origin[1] + dy,
         opponent_origin[2] + dz
     ]
-    print("OpponentGlobal Position:", handle_global_pos)
+    print("Opponent Global Position:", handle_global_pos)
     return handle_global_pos
 
-def initialise_ikpy_integration():
-    my_chain = initialise_chain(create_ik_chain())
+def initialise_ikpy_integration(right_arm_chain: Chain):
+    my_chain = right_arm_chain
     arm_angles = get_right_joint_angles()
     # I've got one disabled line at the front and four at the end
-    initial_position = [0] + [angle for angle in arm_angles.values()] + [0,0,0]
+    initial_position = [0] + [angle for angle in arm_angles.values()] + [0,0,0,0]
 
     print("Initial Chain Position:", initial_position)
 
@@ -190,7 +145,7 @@ def initialise_ikpy_integration():
 
     for res in range(len(ikResults)):
         # This if check will ignore anything that isn't controllable
-        if my_chain.links[res].name in ROBOT_PART_STRINGS:
+        if my_chain.links[res].name in fc.FULL_BODY_PART_NAMES:
             combot.getDevice(my_chain.links[res].name).setPosition(ikResults[res])
             print("Setting {} to {}".format(my_chain.links[res].name, ikResults[res]))
     
