@@ -6,7 +6,7 @@ from controller import wb as c_webots_api, \
     Motor  # The wb package gives you all the C-like methods, but the controller package wraps most of them in nicer-to-use classes.
 from combot import Combot
 from shared_dataclasses import Position
-from arm_controller import ArmController
+from arm import Arm
 import fencing_constants as fc
 import fencing_actions as fence
 import strategy as strat
@@ -42,7 +42,7 @@ def handle_movement_speed(key, max_speed):
     
     return speed_left, speed_right
             
-def handle_fencing_action(key: int, arm: ArmController):
+def handle_fencing_action(key: int, arm: Arm):
     # Map keys to functions
     action_map: Dict[int, Callable] = {
         KEY_LUNGE:      fence.lunge,
@@ -58,7 +58,7 @@ def handle_fencing_action(key: int, arm: ArmController):
 def main():
     combot: Combot = Combot()
     timestep = int(combot.getBasicTimeStep())
-    arm: ArmController = ArmController(combot, fc.RIGHT_ARM_CONFIG)
+    arm: Arm = Arm(combot, fc.RIGHT_ARM_CONFIG)
     fence.init(arm)
     
     wb.wb_keyboard_enable(timestep)

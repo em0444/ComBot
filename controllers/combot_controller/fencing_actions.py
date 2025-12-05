@@ -6,78 +6,78 @@ from controller import Motor, PositionSensor
 from combot import Combot
 import fencing_constants as fc
 
-arm_controller = None
+arm = None
 combot = None
 
 def init(controller_instance):
-    global arm_controller, combot
-    arm_controller = controller_instance   
+    global arm, combot
+    arm = controller_instance   
     combot = controller_instance.combot
     
 # Fencing Actions
 def en_garde():
     """Executes the en garde fencing stance."""
-    if arm_controller is None:
-        print("Error: ArmController not initialized in fencing_actions!")
+    if arm is None:
+        print("Error: Arm not initialized in fencing_actions!")
         return
     
     print("Executing en garde...")
     combot.body_state = (combot.body_state,"EN_GARDE")
     combot.changing_body_state = True
-    arm_controller.move_to_pose(fc.EN_GARDE_ANGLES)
+    arm.move_to_pose(fc.EN_GARDE_ANGLES)
     combot.body_state = "EN_GARDE"
     combot.changing_body_state = False
     print("Done")
 
 def lunge():
     """Executes the lunge fencing action."""
-    if arm_controller is None:
-        print("Error: ArmController not initialized in fencing_actions!")
+    if arm is None:
+        print("Error: Arm not initialized in fencing_actions!")
         return
     
     print("Executing lunge...")
     combot.body_state = (combot.body_state,"LUNGE")
     combot.changing_body_state = True
-    arm_controller.move_to_pose(fc.LUNGE_ANGLES)
+    arm.move_to_pose(fc.LUNGE_ANGLES)
     combot.body_state = "LUNGE"
     combot.changing_body_state = False
     print("Done")
     
 def parry_high():
     """Executes the high parry fencing action."""
-    if arm_controller is None:
-        print("Error: ArmController not initialized in fencing_actions!")
+    if arm is None:
+        print("Error: Arm not initialized in fencing_actions!")
         return
     
     print("Executing high parry...")
     combot.body_state = (combot.body_state,"PARRY_HIGH")
     combot.changing_body_state = True
-    arm_controller.move_to_pose(fc.PARRY_HIGH_ANGLES)
+    arm.move_to_pose(fc.PARRY_HIGH_ANGLES)
     combot.body_state = "PARRY_HIGH"
     combot.changing_body_state = False
     print("Done")
     
 def parry_low(): 
     """Executes the low parry fencing action."""
-    if arm_controller is None:
-        print("Error: ArmController not initialized in fencing_actions!")
+    if arm is None:
+        print("Error: Arm not initialized in fencing_actions!")
         return
     
     print("Executing low parry...")
     combot.body_state = (combot.body_state,"PARRY_LOW")
     combot.changing_body_state = True
-    arm_controller.move_to_pose(fc.PARRY_LOW_ANGLES)
+    arm.move_to_pose(fc.PARRY_LOW_ANGLES)
     combot.body_state = "PARRY_LOW"
     combot.changing_body_state = False
     print("Done")
 
 # Sword Interaction
 def check_hit():
-    if not arm_controller: return False
+    if not arm: return False
     
     # Read the sensor we added
-    if "sword_tip" in arm_controller.sensors:
-        val = arm_controller.sensors["sword_tip"].getValue()
+    if "sword_tip" in arm.sensors:
+        val = arm.sensors["sword_tip"].getValue()
         if val > 0.0: # 1.0 means collision
             print("HIT DETECTED!")
             return True

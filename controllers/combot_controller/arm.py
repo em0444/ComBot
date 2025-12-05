@@ -6,7 +6,7 @@ import fencing_constants as fc
 import fencing_actions as fence
 import ikpy_integration as ik
 
-class ArmController:
+class Arm:
     """High-level API to control combot arms using existing modules."""
 
     def __init__(self, combot: Combot, config: dict):
@@ -17,7 +17,6 @@ class ArmController:
         self.sensors = {}
 
         self._init_all_sensors()
-        self._init_sword_sensor()
         self.urdf_file = self._check_urdf()
         self.right_arm_chain = self.create_right_arm_chain()
 
@@ -34,7 +33,7 @@ class ArmController:
                     self.sensors[motor_name] = sensor
             except AttributeError:
                 pass
-    def _init_sword_sensor(self):
+    
         """Initialises the sword touch sensor."""
         print("Enabling sword touch sensor...")
         sword_sensor = self.combot.getDevice("sword_tip_sensor")
