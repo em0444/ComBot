@@ -85,10 +85,10 @@ PROTO FencingSwordAsSlot [
             }
         ]
         }
-
-        # Average mass of a fencing foil
+        
         physics Physics {
-        mass IS mass
+            mass IS mass
+            density -1
         }
     }
   }
