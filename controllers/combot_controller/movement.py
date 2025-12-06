@@ -152,7 +152,6 @@ def rotate_to_heading(target_heading: float):
             combot.step(int(combot.getBasicTimeStep()))
 
         # See if we need to start slowing down
-        combot.update_internal_position_model()
         current_heading = combot.localisation.inertial_heading.get_heading_in_radians()
         if abs(target_heading - current_heading) <= amount_required_to_slow_down * delta_heading:
             turn(TurnDirection.STOP, 0.0)
