@@ -30,9 +30,10 @@ class Combot(Robot):
     def get_position(self) -> Position:
         return self.position
 
-    def move_to_position(self, position: Position) -> None:
-        from controllers.combot_controller.movement import move_to_position
-        move_to_position(combot_obj=self, target_pos=position)
+    def move_to_position(self, position: Position, counter: int) -> None:
+        from controllers.combot_controller.movement import Movement
+        combot_movement = Movement(combot=self, target_position=position)
+        combot_movement.move_to_position(counter=counter)
 
     def get_arm_position(self):
         raise NotImplementedError()

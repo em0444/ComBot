@@ -53,7 +53,6 @@ wb.wb_keyboard_enable(timestep)
 # initialise_motors()
 # Main loop:
 # - perform simulation steps until Webots is stopping the controller
-done = False
 
 combot.getDevice("wheel_left_joint").setVelocity(0.0)
 combot.getDevice("wheel_right_joint").setVelocity(0.0)
@@ -68,15 +67,14 @@ while combot.step(timestep) != -1:
     #  motor.setPosition(10.0)
     key = wb.wb_keyboard_get_key()
 
-    check_keyboard(key)
-    check_manual_fencing_action(key)
+    # check_keyboard(key)
+    # check_manual_fencing_action(key)
     combot.update_internal_position_model()
-    # combot.get_position()
     print(combot.get_position())
-    if not done:
-        print("sending command to move robot to position...")
-        combot.move_to_position(Position(3, 1, math.pi))
-        done = True
-    pass
+
+    counter = 0
+    while not combot.move_to_position(Position(3, 1, math.pi), counter):
+        combot.step(timestep)
+        counter +=1
 
 # Enter here exit cleanup code.

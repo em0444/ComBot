@@ -11,63 +11,73 @@ global combot, target_position
 def is_in_target_position():
     pass
 
-def move_to_position(combot_obj: Combot, target_pos: Position) -> None:
-    global combot, target_position
-    combot, target_position = combot_obj, target_pos
-    print(combot_obj.get_position())
+class Movement:
+
+    def __init__(self, combot: Combot, target_position: Position):
+        # First calculate the rotation that we need to achieve to get to the positon
+        self.target_pos = target_position
+        self.combot_obj = combot
+        self.finished = False
+        self.starting_position: Position = self.combot_obj.get_position()
+        self.requested_delta_x: float = target_position.x - self.starting_position.x
+        self.requested_delta_y: float = target_position.y - self.starting_position.y
+        self.required_heading: float = (math.atan2(self.requested_delta_y, self.requested_delta_x) + (2 * math.pi)) % (
+                    2 * math.pi)
+        self.required_distance: float = math.sqrt(self.requested_delta_x ** 2 + self.requested_delta_y ** 2)
+        self.last_turning_direction = None
+
+    def move_to_position(self, counter) -> bool:
+        global combot, target_position
+        combot, target_position = self.combot_obj, self.target_pos
+        print(self.combot_obj.get_position())
+
+        if counter == 0:
+            # Point ourselves in the right direction
+            rotate_to_heading(target_heading=self.required_heading)
+
+            # Start moving
+            begin_moving_forward(combot, self.requested_delta_x, self.requested_delta_y)
 
 
-    # First calculate the rotation that we need to achieve to get to the positon
-    starting_position: Position = combot_obj.get_position()
-    requested_delta_x: float = target_position.x - starting_position.x
-    requested_delta_y: float = target_position.y - starting_position.y
-    required_heading: float = (math.atan2(requested_delta_y, requested_delta_x) + (2 * math.pi)) % (2 * math.pi)
-    required_distance: float = math.sqrt(requested_delta_x ** 2 + requested_delta_y ** 2)
+            self.last_turning_direction: Optional[TurnDirection] = None
+            self.required_turning_direction: Optional[TurnDirection] = None
+            self.finished = False
 
-    # Point ourselves in the right direction
-    rotate_to_heading(target_heading=required_heading)
+        if self.finished == True:
+            return True
 
-    # Start moving
-    begin_moving_forward(combot, requested_delta_x, requested_delta_y)
+        if counter % 30 == 0 and not self.finished:
+            #If we've travelled far enough, then we're done!
+            combot.update_internal_position_model()
+            current_position: Position = combot.get_position()
+            amount_travelled = math.sqrt((current_position.x - self.starting_position.x) ** 2 + (current_position.y - self.starting_position.y) ** 2)
+            if amount_travelled > self.required_distance:
+                print("Combot now at destination position... Killing motors.")
+                turn(TurnDirection.STOP, 0.0)
+                finished = True
+                return True
 
+            # Adjust course so we're still moving on the right heading
+            current_heading = combot.get_position().heading_in_radians
 
-    last_turning_direction: Optional[TurnDirection] = None
-    required_turning_direction: Optional[TurnDirection] = None
-    finished = False
-    while not finished:
+            turning_direction_in_radians = (self.required_heading - current_heading) % (2 * math.pi)
+            if turning_direction_in_radians > math.pi:
+                turning_direction_in_radians -= 2 * math.pi
 
-        #If we've travelled far enough, then we're done!
-        combot.update_internal_position_model()
-        current_position: Position = combot.get_position()
-        amount_travelled = math.sqrt((current_position.x - starting_position.x) ** 2 + (current_position.y - starting_position.y) ** 2)
-        if amount_travelled > required_distance:
-            break
+            required_turning_direction = None
+            if turning_direction_in_radians > 0.1:
+                required_turning_direction = TurnDirection.LEFT
+            if turning_direction_in_radians < -0.1:
+                required_turning_direction = TurnDirection.RIGHT
 
-        # Wait a bit...
-        for i in range(10):
-            combot.step(int(combot.getBasicTimeStep()))
+            if not self.last_turning_direction == required_turning_direction: # Then we're not already adjusting our course in the correct way, so change something!
+                self.last_turning_direction = required_turning_direction
+                begin_moving_forward(combot, self.requested_delta_x, self.requested_delta_y) # Straighten back up
+                if required_turning_direction is not None:
+                    turn(required_turning_direction, turning_speed=0.5)
 
-        # Adjust course so we're still moving on the right heading
-        current_heading = combot.get_position().heading_in_radians
-
-        turning_direction_in_radians = (required_heading - current_heading) % (2 * math.pi)
-        if turning_direction_in_radians > math.pi:
-            turning_direction_in_radians -= 2 * math.pi
-
-        required_turning_direction = None
-        if turning_direction_in_radians > 0.1:
-            required_turning_direction = TurnDirection.LEFT
-        if turning_direction_in_radians < -0.1:
-            required_turning_direction = TurnDirection.RIGHT
-
-        if not last_turning_direction == required_turning_direction: # Then we're not already adjusting our course in the correct way, so change something!
-            last_turning_direction = required_turning_direction
-            begin_moving_forward(combot, requested_delta_x, requested_delta_y) # Straighten back up
-            if required_turning_direction is not None:
-                turn(required_turning_direction, turning_speed=0.5)
-
-    print("Combot now at destination position... Killing motors.")
-    turn(TurnDirection.STOP, 0.0)
+            # We're not done yet!
+            return False
 
 def begin_moving_forward(combot, requested_delta_x, requested_delta_y):
     print("Moving forward...")
