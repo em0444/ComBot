@@ -22,7 +22,7 @@ KEY_LUNGE = 32      # Spacebar
 KEY_PARRY_HIGH = 81 # Q
 KEY_PARRY_LOW = 90  # Z
 KEY_EN_GARDE = 82   # R
-KEY_MOVE_ARM = 65   # A
+# KEY_MOVE_ARM = 65   # A
 
 # Shorthand alias for the Webots API module
 wb = c_webots_api.wb
@@ -49,7 +49,7 @@ def handle_fencing_action(key: int, arm: Arm):
         KEY_PARRY_HIGH: fence.parry_high,
         KEY_PARRY_LOW:  fence.parry_low,
         KEY_EN_GARDE:   fence.en_garde,
-        KEY_MOVE_ARM:   arm.initialise_ikpy_integration
+        # KEY_MOVE_ARM:   arm.move_to_target
     }
     # Execute if key exists in map
     if key in action_map:
@@ -104,6 +104,7 @@ def main():
                 left_wheel.setVelocity(0.0)
                 right_wheel.setVelocity(0.0)
 
+            # fence.update()
             fence.check_hit()
 
             # combot.update_internal_position_model()

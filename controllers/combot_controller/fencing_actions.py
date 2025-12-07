@@ -25,6 +25,10 @@ def en_garde():
     combot.body_state = (combot.body_state,"EN_GARDE")
     combot.changing_body_state = True
     arm.move_to_pose(fc.EN_GARDE_ANGLES)
+    config = fc.IK_MOVES["EN_GARDE"]
+    arm.move_to_target(target_pos=config["pos"],
+                       orientation_mode=config["mode"],
+                       target_orientation=config["vector"])
     combot.body_state = "EN_GARDE"
     combot.changing_body_state = False
     print("Done")
@@ -39,6 +43,11 @@ def lunge():
     combot.body_state = (combot.body_state,"LUNGE")
     combot.changing_body_state = True
     arm.move_to_pose(fc.LUNGE_ANGLES)
+    config = fc.IK_MOVES["LUNGE"]
+    target = arm.get_opponent_target()
+    arm.move_to_target(target_pos=target,
+                       orientation_mode=config["mode"],
+                       target_orientation=config["vector"])
     combot.body_state = "LUNGE"
     combot.changing_body_state = False
     print("Done")
@@ -48,11 +57,14 @@ def parry_high():
     if arm is None:
         print("Error: Arm not initialized in fencing_actions!")
         return
-    
     print("Executing high parry...")
     combot.body_state = (combot.body_state,"PARRY_HIGH")
     combot.changing_body_state = True
     arm.move_to_pose(fc.PARRY_HIGH_ANGLES)
+    config = fc.IK_MOVES["PARRY_HIGH"]
+    arm.move_to_target(target_pos=config["pos"],
+                       orientation_mode=config["mode"],
+                       target_orientation=config["vector"])
     combot.body_state = "PARRY_HIGH"
     combot.changing_body_state = False
     print("Done")
@@ -67,6 +79,10 @@ def parry_low():
     combot.body_state = (combot.body_state,"PARRY_LOW")
     combot.changing_body_state = True
     arm.move_to_pose(fc.PARRY_LOW_ANGLES)
+    config = fc.IK_MOVES["PARRY_LOW"]
+    arm.move_to_target(target_pos=config["pos"],
+                       orientation_mode=config["mode"],
+                       target_orientation=config["vector"])
     combot.body_state = "PARRY_LOW"
     combot.changing_body_state = False
     print("Done")
@@ -113,3 +129,22 @@ def move_stop():
     combot.getDevice("wheel_right_joint").setVelocity(0)
     combot.base_state = "STILL"
     combot.changing_base_state = False
+
+# # opponent interaction
+# def update():
+#     """
+#     Called every time step. 
+#     If we are currently lunging, re-calculate the target to track the opponent.
+#     """
+#     # Safety check: ensure everything is initialized
+#     if arm is None or combot is None:
+#         return
+
+#     # CONTINUOUS TRACKING LOGIC
+#     if combot.body_state == "LUNGE":
+#         # 1. Where is the opponent RIGHT NOW? (Gets live position)
+#         target = arm.get_opponent_target()
+        
+#         # 2. Re-run IK to adjust the arm trajectory mid-flight
+#         # This makes the arm "homing"
+#         arm.move_to_target(target)
