@@ -26,10 +26,10 @@ class TrainerCombot(Supervisor):
     def get_position(self):
         return self.getSelf().getPosition()
     
-    def get_arm_position(self):
+    def get_arm_wrist_position(self):
         raise NotImplementedError()
     
-    def get_sword_position(self):
+    def get_sword_tip_position(self):
         raise NotImplementedError()
     
     def get_enemy_position(self):

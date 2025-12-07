@@ -5,13 +5,13 @@ from typing import List, TYPE_CHECKING
 import matplotlib
 import matplotlib.pyplot
 from mpl_toolkits.mplot3d import Axes3D
-# from combot import Combot
+from combot import Combot
 import fencing_constants as fc
 import fencing_actions as fence
 import ikpy_integration as ik
 
-if TYPE_CHECKING:
-    from combot import Combot
+# if TYPE_CHECKING:
+#     from combot import Combot
 class Arm:
     """High-level API to control combot arms using existing modules."""
 

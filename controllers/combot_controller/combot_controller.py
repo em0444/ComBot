@@ -81,6 +81,7 @@ def main():
     print("Sensors ready.")
     print(arm.create_right_arm_chain())
     # arm.get_right_joint_angles()
+    # print("Wrist: ", arm.get_arm_wrist_position())
 
     done = False # Flag to ensure move_to_position is called only once
 
