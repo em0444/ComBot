@@ -11,7 +11,7 @@ import fencing_constants as fc
 import fencing_actions as fence
 import strategy as strat
 
-# Keyboard codes (Webots specific)
+# Movement Keyboard codes (Webots specific)
 KEY_UP = 315
 KEY_DOWN = 317
 KEY_RIGHT = 316
@@ -22,7 +22,6 @@ KEY_LUNGE = 32      # Spacebar
 KEY_PARRY_HIGH = 81 # Q
 KEY_PARRY_LOW = 90  # Z
 KEY_EN_GARDE = 82   # R
-# KEY_MOVE_ARM = 65   # A
 
 # Shorthand alias for the Webots API module
 wb = c_webots_api.wb
@@ -43,13 +42,12 @@ def handle_movement_speed(key, max_speed):
     return speed_left, speed_right
             
 def handle_fencing_action(key: int, arm: Arm):
-    # Map keys to functions
+    # Map keys to their corresponding fencing action functions
     action_map: Dict[int, Callable] = {
         KEY_LUNGE:      fence.lunge,
         KEY_PARRY_HIGH: fence.parry_high,
         KEY_PARRY_LOW:  fence.parry_low,
-        KEY_EN_GARDE:   fence.en_garde,
-        # KEY_MOVE_ARM:   arm.move_to_target
+        KEY_EN_GARDE:   fence.en_garde
     }
     # Execute if key exists in map
     if key in action_map:
@@ -59,29 +57,17 @@ def main():
     combot: Combot = Combot()
     timestep = int(combot.getBasicTimeStep())
     arm: Arm = Arm(combot, fc.RIGHT_ARM_CONFIG)
-    fence.init(arm)
+    fence.init(arm) # Initialise fencing module with arm reference
     
     wb.wb_keyboard_enable(timestep)
 
-    # ds = combot.getDevice("sword_distance_sensor")
-    # ds.enable(10) # Enable with 10ms timestep
-
+    # Get references to the wheel motors
     left_wheel = combot.getDevice("wheel_left_joint")
     right_wheel = combot.getDevice("wheel_right_joint")
 
     # Configure motors for velocity control (set position to infinity)
     left_wheel.setPosition(float('inf'))
     right_wheel.setPosition(float('inf'))
-    left_wheel.setVelocity(0.0)
-    right_wheel.setVelocity(0.0)
-
-    # Ensures sensors are enabled before reading them
-    for _ in range(timestep + 1):
-        combot.step(timestep)
-    print("Sensors ready.")
-    print(arm.create_right_arm_chain())
-    # arm.get_right_joint_angles()
-    # print("Wrist: ", arm.get_arm_wrist_position())
 
     done = False # Flag to ensure move_to_position is called only once
 
@@ -89,9 +75,6 @@ def main():
         while combot.step(timestep) != -1:
 
             key = wb.wb_keyboard_get_key()
-
-            # val = ds.getValue()
-            # print(f"Distance to tip target: {val}") 
 
             if key > 0:
                 max_speed = left_wheel.getMaxVelocity()
@@ -105,7 +88,6 @@ def main():
                 left_wheel.setVelocity(0.0)
                 right_wheel.setVelocity(0.0)
 
-            # fence.update()
             fence.check_hit()
 
             # combot.update_internal_position_model()
@@ -118,13 +100,6 @@ def main():
             # move = strat.strategy7(combot)
             # if move is not None:
             #     move()
-
-            # # enable RGBD camera
-            # rgb_camera = wb.wb_robot_get_device("Astra rgb")
-            # wb.wb_camera_enable(rgb_camera, timestep)
-            # depth_camera = wb.wb_robot_get_device("Astra depth")
-            # wb.wb_range_finder_enable(depth_camera, timestep)
-
             
     except KeyboardInterrupt:   
         print("Controller stopped by user.")
