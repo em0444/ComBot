@@ -92,27 +92,27 @@ def main():
             # val = ds.getValue()
             # print(f"Distance to tip target: {val}") 
 
-            if key > 0:
-                max_speed = left_wheel.getMaxVelocity()
-                speed_left, speed_right = handle_movement_speed(key, max_speed)
+            # if key > 0:
+            #     max_speed = left_wheel.getMaxVelocity()
+            #     speed_left, speed_right = handle_movement_speed(key, max_speed)
+            #
+            #     left_wheel.setVelocity(speed_left)
+            #     right_wheel.setVelocity(speed_right)
+            #
+            #     handle_fencing_action(key, arm)
+            # else:
+            #     left_wheel.setVelocity(0.0)
+            #     right_wheel.setVelocity(0.0)
+            #
+            # fence.check_hit()
 
-                left_wheel.setVelocity(speed_left)
-                right_wheel.setVelocity(speed_right)
+            combot.update_internal_position_model()
+            print(combot.get_position())
 
-                handle_fencing_action(key, arm)
-            else:
-                left_wheel.setVelocity(0.0)
-                right_wheel.setVelocity(0.0)
-
-            fence.check_hit()
-
-            # combot.update_internal_position_model()
-            # print(combot.get_position())
-
-            # if not done:
-            #     print("sending command to move robot to position...")
-            #     combot.move_to_position(Position(3, 1, math.pi))
-            #     done = True
+            if not done:
+                print("sending command to move robot to position...")
+                combot.move_to_position(Position(3, 1, math.pi))
+                done = True
             # move = strat.strategy7(combot)
             # if move is not None:
             #     move()

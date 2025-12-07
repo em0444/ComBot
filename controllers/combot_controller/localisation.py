@@ -5,7 +5,7 @@ from copy import copy
 from dataclasses import dataclass
 
 from controllers.combot_controller.shared_dataclasses import Position
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from controller import PositionSensor, Lidar, DistanceSensor
 from controllers.combot_controller.combot import Combot
@@ -86,11 +86,29 @@ class Localisation:
         # print((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
         # return((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
 
-    def get_enemy_position(self):
+    def get_enemy_position(self) -> Optional[Position]:
+        # Get sensor data
         combot.update_internal_position_model()
+        current_position: Position = combot.get_position()
+        distance_from_front_to_nearest_object = self.forwards_distance_sensing.get_forwards_distance_in_metres()
 
-        raise NotImplementedError()
+        # Figure out the position we've sensed in front of us
+        sensed_x = current_position.x + (math.cos(self.inertial_heading.get_heading_in_radians()) * distance_from_front_to_nearest_object)
+        sensed_y = current_position.y + (math.sin(self.inertial_heading.get_heading_in_radians()) * distance_from_front_to_nearest_object)
 
+        # Figure out if we've sensed the enemy or just sensed the wall
+        sensed_position_is_close_to_wall = False
+        position_offsets = [-0.2, 0.2]
+        for x_offset in position_offsets:
+            for y_offset in position_offsets:
+                offset_position = Position(sensed_x + x_offset, sensed_y + y_offset, 0.0)
+                if not offset_position.is_in_map():
+                    sensed_position_is_close_to_wall = True
+
+        # If we've sensed a wall, we've not found the enemy
+        if sensed_position_is_close_to_wall:
+            return None
+        return Position(sensed_x, sensed_y, 0.0)
 
 class WheelOdometry:
     # Moving striaght into the wall gives us values 43, 43, when we reach it. Dividing by actual distance travelled gets us a (rounded) scale factor of 10.
@@ -149,17 +167,12 @@ class LidarArray:
 class ForwardsDistanceSensing:
     def __init__(self):
         self.distance_sensors: List[DistanceSensor] = [device for device in combot.devices.values() if isinstance(device, DistanceSensor)]
-        self.distance_sensors[0].__init__("base_sonar_01_link", int(combot.getBasicTimeStep()))
-        self.distance_sensors[1].__init__("base_sonar_02_link", int(combot.getBasicTimeStep()))
         self.distance_sensors[2].__init__("base_sonar_03_link", int(combot.getBasicTimeStep()))
-        for sensor in self.distance_sensors:
 
-            # sensor.__init__("")
-           sensor.enable(int(combot.getBasicTimeStep()))
+    def get_forwards_distance_in_metres(self):
+        return self.distance_sensors[2].getValue() / 1000 * 3
 
-        print("Done!")
-        while True:
-            combot.step(int(combot.getBasicTimeStep()))
+
 
 
 class Particle:

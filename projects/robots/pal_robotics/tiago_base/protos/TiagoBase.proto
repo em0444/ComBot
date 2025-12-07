@@ -156,8 +156,9 @@ PROTO TiagoBase [
         }
       }
       DEF DISTANCE_SENSOR_BACK_LEFT DistanceSensor {
-        translation -0.183 0.183 0.173
-        rotation 0 0 1 2.3562
+        lookupTable [0.0, 0.0, 0.0, 3, 1000.0, 0.0]
+        translation 0.183 0.183 0
+        rotation 1 0 0 -1.5708
         children [
           DEF DS_SHAPE Group {
             children [
