@@ -1,10 +1,16 @@
-# IKPY Integration
+"""
+ikpy_integration.py
+Handles IKPY (Inverse Kinematics Python) chain creation and configuration.
+Converts URDF robot model to IK chain for computing joint angles to reach targets.
+"""
+
 import os
 from ikpy.chain import Chain
 from ikpy.link import OriginLink, URDFLink
-import combot
-from combot import Combot
 import numpy as np
+
+# import combot
+from combot import Combot
 import fencing_constants as fc
 
 np.float = float  # Fix for ikpy compatibility with numpy>=1.24
@@ -13,44 +19,43 @@ np.float = float  # Fix for ikpy compatibility with numpy>=1.24
 combot = Combot()
 timestep = int(combot.getBasicTimeStep())
 
-
-def get_joint_limits(urdf_root):
-    joint_limits = {
-            joint.name: {
-                "lower": joint.limit.lower,
-                "upper": joint.limit.upper,
-                "velocity": joint.limit.velocity
-            }
-            for joint in urdf_root.joint_map.values() 
-            if joint.limit is not None
-        }
-    print("Joint Limits: \n", joint_limits)
-    return joint_limits
-
-def create_right_arm_chain(filename) -> Chain:
-    # Path: Base -> Torso -> Lift -> Arm Base -> Arm Segments -> Wrist
+# IK Chain Creation
+def create_right_arm_chain(urdf_filename) -> Chain:
+    """Create an inverse kinematics chain from the robot's URDF file."""
     right_arm_chain = Chain.from_urdf_file(
-        filename,
-        last_link_vector=fc.RIGHT_ARM_CONFIG["tip_offset"], # end effector offset
+        urdf_filename,
+        last_link_vector=fc.RIGHT_ARM_CONFIG["tip_offset"], # end effector (sword) offset relative to the last joint (wrist)
         base_elements=fc.RIGHT_ARM_CONFIG["base_elements"],
         name=fc.RIGHT_ARM_CONFIG["name"]
     )
 
-    print("IK Chain created with ", len(right_arm_chain.links), " links")
+    print("IK Chain created with", len(right_arm_chain.links), "links")
 
+    # Configure which joints are controllable and active for IK
     return activate_ik_chain(right_arm_chain)
 
 def activate_ik_chain(right_arm_chain: Chain):
-    print("Activating IK Chain for right arm...")
+    """Configure which links in the IK chain are active for inverse kinematics."""
+    print("onfiguring IK chain - marking controllable joints...")
+    
+    # Iterate through all links in the chain
     for link_id in range(len(right_arm_chain.links)):
-        # This is the actual link object
+        # Get the link object at this position in the chain
         link = right_arm_chain.links[link_id]
-        print("Link {}: {}".format(link_id, link.name))
+        print(f"  Link {link_id}: {link.name}")
         
+        # Check if this link should be active for IK
         if link.name not in fc.FULL_BODY_PART_NAMES or  link.name =="torso_lift_joint":
-            print("Disabling {}".format(link.name))
+            print(f"    -> Disabling {link.name} (not controllable)")
             right_arm_chain.active_links_mask[link_id] = False
         
-    active_links = [right_arm_chain.links[i].name for i in range(len(right_arm_chain.links)) if right_arm_chain.active_links_mask[i]]
-    print("Active links:", active_links)
+    # Log which links are active for debugging/verification
+    active_links = [
+        right_arm_chain.links[i].name 
+        for i in range(len(right_arm_chain.links)) 
+        if right_arm_chain.active_links_mask[i]
+    ]
+    print(f"Active links for IK: {active_links}")
+    print(f"Total active joints: {sum(right_arm_chain.active_links_mask)}")
+    
     return right_arm_chain
