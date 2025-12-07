@@ -1,6 +1,7 @@
 # IKPY Integration
 import os
 from ikpy.chain import Chain
+from ikpy.link import OriginLink, URDFLink
 import combot
 from combot import Combot
 import numpy as np

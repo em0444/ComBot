@@ -1,13 +1,17 @@
 # Arm controller wrapper — uses existing fencing_actions and ikpy_integration modules
 import os
-from typing import List
+from typing import List, TYPE_CHECKING
 
 import matplotlib
-from combot import Combot
+import matplotlib.pyplot
+from mpl_toolkits.mplot3d import Axes3D
+# from combot import Combot
 import fencing_constants as fc
 import fencing_actions as fence
 import ikpy_integration as ik
 
+if TYPE_CHECKING:
+    from combot import Combot
 class Arm:
     """High-level API to control combot arms using existing modules."""
 
@@ -180,3 +184,112 @@ class Arm:
     def initialise_ikpy_integration(self):
         """Run the existing IK routine (moves the arm toward opponent)."""
         return ik.initialise_ikpy_integration(self.right_arm_chain)
+    
+    # For strategy
+    def get_arm_wrist(self):
+        our_fencer = self.combot.getFromDef("FENCER")
+        print("Me:", our_fencer.getPosition())
+        our_opp = self.combot.getFromDef("OPP")
+        # print("Them:", our_opp.getPosition())
+        my_sword = self.combot.getDevice("sword_tip_sensor")
+        sword_tip = self.get_real_sword_tip()
+        print("Sword tip: ", sword_tip)
+        my_wrist = self.combot.getFromDef("PLAYER_WRIST")
+        wrist_pos = my_wrist.getPosition()
+        return wrist_pos
+    
+    def get_real_sword_tip(self):
+        """
+        Calculates the global sword tip position using the Supervisor API.
+        This is more accurate than FK because it accounts for the robot's 
+        movements and body rotation.
+        """
+        # 1. Get the Wrist Node (defined in Tiago++.proto)
+        wrist_node = self.combot.getFromDef("PLAYER_WRIST")
+        
+        if wrist_node is None:
+            print("Error: PLAYER_WRIST node not found!")
+            return [0, 0, 0]
+
+        # 2. Get Global Position and Rotation of the Wrist
+        wrist_pos = wrist_node.getPosition()
+        wrist_rot = wrist_node.getOrientation() # Returns 3x3 Matrix as list of 9 floats
+
+        # 3. Define the Sword Offset (Vector from Wrist -> Tip)
+        # You must adjust this based on your specific sword model geometry.
+        # Example: If sword extends 0.9m along the X-axis of the wrist:
+        sword_length = 0.9 
+        local_offset = [sword_length, 0.0, 0.0] 
+        
+        # 4. Apply Rotation to the Offset (Matrix Multiplication)
+        # Global_Offset = Rotation_Matrix * Local_Offset
+        # Matrix is flat: [r0, r1, r2, r3, r4, r5, r6, r7, r8]
+        dx = wrist_rot[0] * local_offset[0] + wrist_rot[1] * local_offset[1] + wrist_rot[2] * local_offset[2]
+        dy = wrist_rot[3] * local_offset[0] + wrist_rot[4] * local_offset[1] + wrist_rot[5] * local_offset[2]
+        dz = wrist_rot[6] * local_offset[0] + wrist_rot[7] * local_offset[1] + wrist_rot[8] * local_offset[2]
+
+        # 5. Add Rotated Offset to Wrist Position
+        global_tip = [
+            wrist_pos[0] + dx,
+            wrist_pos[1] + dy,
+            wrist_pos[2] + dz
+        ]
+        print("-" * 30)
+        print(f"OFFSET CALCULATION:")
+        print(f"Forward (X): {global_tip[0]:.4f} m")
+        print(f"Left    (Y): {global_tip[1]:.4f} m")
+        print(f"Up      (Z): {global_tip[2]:.4f} m")
+        print("-" * 30)
+        
+        # print(f"Global Sword Tip: {global_tip}")
+        return global_tip
+    
+    def get_sword_tip_position(self):
+        """
+        Returns the [x, y, z] position of the sword tip 
+        relative to the Right Shoulder (the base of the chain).
+        """
+        # 1. Get current joint angles (same as you do for IK)
+        arm_angles = self.get_right_joint_angles()
+        
+        # 2. Pad the list to match the chain (Base + 7 Joints + Tip Padding)
+        # We perform the same list construction you use in move_to_target
+        current_angles = [0] + [angle for angle in arm_angles.values()] + [0]*4
+        
+        # Slice to ensure it fits the chain length exactly
+        current_angles = current_angles[:len(self.right_arm_chain.links)]
+
+        # 3. Calculate Forward Kinematics
+        # This returns a 4x4 Transformation Matrix
+        transformation_matrix = self.right_arm_chain.forward_kinematics(current_angles)
+        
+        # 4. Extract the Position Vector (First 3 rows of the last column)
+        # Matrix structure:
+        # [ r00 r01 r02  X ]
+        # [ r10 r11 r12  Y ]
+        # [ r20 r21 r22  Z ]
+        # [  0   0   0   1 ]
+        x = transformation_matrix[0, 3]
+        y = transformation_matrix[1, 3]
+        z = transformation_matrix[2, 3]
+        
+        print(f"Sword Tip (Local): [{x:.2f}, {y:.2f}, {z:.2f}]")
+        return [x, y, z]
+    
+    def get_sword_tip_global(self):
+        # 1. Get Local Tip Position
+        local_tip = self.get_sword_tip_position()
+        
+        # 2. Get Robot's Global Position (Requires Supervisor)
+        robot_pos = self.combot.getSelf().getPosition()
+        
+        # 3. Add them together
+        # (Note: This is a simplification; for perfect accuracy you would 
+        # need to apply the robot's body rotation matrix too)
+        global_tip = [
+            robot_pos[0] + local_tip[0],
+            robot_pos[1] + local_tip[1],
+            robot_pos[2] + local_tip[2]
+        ]
+        print("Global tip pos: ", global_tip)
+        return global_tip
