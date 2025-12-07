@@ -82,8 +82,7 @@ def main():
     print(arm.create_right_arm_chain())
     # arm.get_right_joint_angles()
 
-    done = False # Flag to ensure move_to_position is called only once
-
+    counter = 0
     try:
         while combot.step(timestep) != -1:
 
@@ -106,13 +105,9 @@ def main():
             #
             # fence.check_hit()
 
-            combot.update_internal_position_model()
-            print(combot.get_position())
 
-            if not done:
-                print("sending command to move robot to position...")
-                combot.move_to_position(Position(3, 1, math.pi))
-                done = True
+            combot.move_to_position(Position(3, 1, math.pi), counter)
+            counter +=1
             # move = strat.strategy7(combot)
             # if move is not None:
             #     move()

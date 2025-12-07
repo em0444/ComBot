@@ -34,12 +34,21 @@ class Combot(Robot):
         self.position = self.localisation.update_internal_position_model()
 
     def get_position(self) -> Position:
+        if self.localisation is None:
+            from controllers.combot_controller.localisation import Localisation
+            self.localisation = Localisation(combot_obj=self)
         return self.position
 
-    def move_to_position(self, position: Position, counter: int) -> None:
+    def move_to_position(self, position: Position, counter: int) -> bool:
+        """
+        A non-blocking function to move the robot, while simultaneously allowing it to do other things.
+        """
+        if self.localisation is None:
+            from controllers.combot_controller.localisation import Localisation
+            self.localisation = Localisation(combot_obj=self)
         from controllers.combot_controller.movement import Movement
         combot_movement = Movement(combot=self, target_position=position)
-        combot_movement.move_to_position(counter=counter)
+        return combot_movement.move_to_position(counter=counter)
 
     def get_arm_position(self):
         raise NotImplementedError()

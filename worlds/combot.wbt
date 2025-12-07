@@ -46,16 +46,15 @@ RectangleArena {
   wallHeight 3
 }
 Tiago++ {
-  translation -3.88 0.04 0.095
-  rotation 0 0 1 1.5708
+  translation 0 0 0
+  rotation 0 0 -1 -5.307179586466759e-06
   name "ComBot"
   controller "<extern>"
-  supervisor TRUE
   lidarSlot [
     VelodyneVLP-16 {
       translation -0.41 0 0.24
     }
   ]
 }
-FencingSword {
+DEF FENCING_SWORD_SOLID FencingSword {
 }
