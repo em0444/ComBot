@@ -7,6 +7,12 @@ from controllers.combot_controller.shared_dataclasses import Position
 
 class Combot(Robot):
     _instance = None
+    changing_body_state = False
+    body_state = "DEFAULT"
+    changing_base_state = False
+    base_state = "STILL"
+    timeCounter = 0.0
+    cycleIndex = -1
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
@@ -54,3 +60,7 @@ class Combot(Robot):
     
     def get_enemy_sword_position(self):
         raise NotImplementedError()
+
+    # def sword_is_contacting(self):
+    #     supervisor_contact_points = self.supervisor_obj.getFromDef("FENCING_SWORD_SOLID").getContactPoints()
+    #     return len(supervisor_contact_points) > 0 # If you want this to be less sensitive in future, set this = 1

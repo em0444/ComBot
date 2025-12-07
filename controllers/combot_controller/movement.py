@@ -3,8 +3,8 @@ from enum import Enum
 from typing import Optional
 
 from controller import Motor
-from controllers.combot_controller.combot import Combot
-from controllers.combot_controller.shared_dataclasses import Position
+from combot import Combot
+from shared_dataclasses import Position
 
 global combot, target_position
 
