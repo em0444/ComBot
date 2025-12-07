@@ -7,12 +7,11 @@ from dataclasses import dataclass
 from controllers.combot_controller.shared_dataclasses import Position
 from typing import List, Tuple
 
-from controller import PositionSensor, Lidar
+from controller import PositionSensor, Lidar, DistanceSensor
 from controllers.combot_controller.combot import Combot
 
 global combot
 
-# distance_sensors: List[DistanceSensor] = [device for device in combot.devices.values() if isinstance(device, DistanceSensor)]
 
 class InertialHeading:
     def __init__(self):
@@ -32,9 +31,11 @@ class Localisation:
         global combot
         combot = combot_obj
 
+        # Initialise our various sensors
         self.lidar_array = LidarArray()
         self.wheel_odometry = WheelOdometry()
         self.inertial_heading = InertialHeading()
+        self.forwards_distance_sensing = ForwardsDistanceSensing()
 
         initial_random_particles = [Particle(Position(0, 0, 2 * math.pi)) for _ in range(num_particles)]
         self.particles = initial_random_particles
@@ -87,6 +88,7 @@ class Localisation:
 
     def get_enemy_position(self):
         combot.update_internal_position_model()
+
         raise NotImplementedError()
 
 
@@ -143,6 +145,21 @@ class LidarArray:
         vision = [LidarRay(distance=distance, angle_in_radians=angle) for angle, distance in vision]
 
         return vision
+
+class ForwardsDistanceSensing:
+    def __init__(self):
+        self.distance_sensors: List[DistanceSensor] = [device for device in combot.devices.values() if isinstance(device, DistanceSensor)]
+        self.distance_sensors[0].__init__("base_sonar_01_link", int(combot.getBasicTimeStep()))
+        self.distance_sensors[1].__init__("base_sonar_02_link", int(combot.getBasicTimeStep()))
+        self.distance_sensors[2].__init__("base_sonar_03_link", int(combot.getBasicTimeStep()))
+        for sensor in self.distance_sensors:
+
+            # sensor.__init__("")
+           sensor.enable(int(combot.getBasicTimeStep()))
+
+        print("Done!")
+        while True:
+            combot.step(int(combot.getBasicTimeStep()))
 
 
 class Particle:

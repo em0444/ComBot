@@ -5,13 +5,14 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "../protos/Tiago++.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/devices/velodyne/protos/VelodyneVLP-16.proto"
+EXTERNPROTO "../protos/FencingSword.proto"
 
 WorldInfo {
-  basicTimeStep 4
+  basicTimeStep 30
 }
 Viewpoint {
-  orientation -0.5073668182470399 0.4936039159968765 0.7063526639394967 1.9374439691288785
-  position -2.2449204557017888 -6.067106183277799 10.815058081212445
+  orientation -0.5452915122767039 0.5521515538153298 0.6307026464652754 2.004908241114653
+  position -1.5636419235939054 -1.1539036725343492 17.451941004336646
 }
 TexturedBackground {
 }
@@ -45,6 +46,8 @@ RectangleArena {
   wallHeight 3
 }
 Tiago++ {
+  translation -3.88 0.04 0.095
+  rotation 0 0 1 1.5708
   name "ComBot"
   controller "<extern>"
   supervisor TRUE
