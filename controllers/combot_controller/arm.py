@@ -159,7 +159,7 @@ class Arm:
         print("Moved arm to target position:", target_position)
 
         # Visualise IK solution
-        self.visualise_ik(current_angles, ik_results, target_position)
+        # self.visualise_ik(current_angles, ik_results, target_position)
 
     def visualise_ik(self, current_angles: List[float], 
                       ik_results: List[float], 
