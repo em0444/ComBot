@@ -44,7 +44,7 @@ RectangleArena {
   floorSize 0.5 2
   wallHeight 3
 }
-Tiago++ {
+DEF FENCER Tiago++ {
   name "ComBot"
   controller "combot_controller"
   lidarSlot [
