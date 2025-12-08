@@ -43,23 +43,34 @@ class Localisation:
 
     def update_internal_position_model(self) -> Position:
 
+        # Get the odometry data
         odometry_change_data = self.wheel_odometry.get_odometry_change_since_last_query()
         lidar_data = self.lidar_array.get_lidar_map()
 
+        # Calculate particle likelihoods based on sensor data
         for particle in self.particles:
             particle.calculate_log_likelihood(odometry_change_data, lidar_data)
 
+        # Normalise particle likelihoods
         max_log_likelihood, min_log_likelihood = max([p.log_likelihood for p in self.particles]), min([p.log_likelihood for p in self.particles])
-
         for particle in self.particles:
             particle.calculate_normalised_weight(max_log_likelihood, min_log_likelihood, self.num_particles)
 
+        # Perform the resampling step
+        # reweighted_particles = random.choices(population=self.particles, weights=[particle.normalised_weight for particle in self.particles], k=len(self.particles))
+
+        # for i in range(len(reweighted_particles)):
+        #     self.particles[i] = copy(reweighted_particles[i])
+
+        # Return the best guess we've got
         best_particle = sorted(self.particles, key=lambda p: p.normalised_weight, reverse=True)[0]
 
+        new_particles = []
         for particle in self.particles:
-            particle.position = copy(best_particle.position)
-            particle.position = Position(x=particle.position.x, y=particle.position.y, heading_in_radians=self.inertial_heading.get_heading_in_radians())
+            new_particle = copy(best_particle)
+            new_particles.append(new_particle)
 
+        self.particles = new_particles
         return copy(best_particle.position)
 
 
@@ -109,6 +120,7 @@ class Localisation:
         if sensed_position_is_close_to_wall:
             return None
         return Position(sensed_x, sensed_y, 0.0)
+
 
 class WheelOdometry:
     # Moving striaght into the wall gives us values 43, 43, when we reach it. Dividing by actual distance travelled gets us a (rounded) scale factor of 10.
@@ -244,9 +256,9 @@ class Particle:
         delta_x = delta_s * math.cos(heading + delta_theta / 2)
         delta_y = delta_s * math.sin(heading + delta_theta / 2)
 
-        delta_x += random.gauss(0, 0.005) # Add gaussian uncertainty
-        delta_y += random.gauss(0, 0.005)
-        delta_theta = (delta_theta + random.gauss(0, 0.005)) % (2 * math.pi)
+        delta_x += random.gauss(0, 0.01) # Add gaussian uncertainty
+        delta_y += random.gauss(0, 0.01)
+        delta_theta = (delta_theta + random.gauss(0, 0.01)) % (2 * math.pi)
 
         self.position = self.position.add(delta_x, delta_y, delta_theta) # Update the position
 
@@ -255,6 +267,9 @@ class Particle:
             self.normalised_weight = 1 / num_particles
         else:
             self.normalised_weight = (self.log_likelihood - min_log_likelihood) / (max_log_likelihood - min_log_likelihood)
+
+        # Make the resample more agressive
+        # self.normalised_weight = self.normalised_weight ** 10
 
 
 @dataclass(frozen=True)

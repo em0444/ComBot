@@ -59,7 +59,7 @@ class Movement:
             return True # Tell them we're done
 
         # Only do these checks every 30 timesteps (1 timestep = 1 counter)
-        if counter % 30 == 0 and not self.finished:
+        if counter % 10 == 0 and not self.finished:
             #If we've travelled far enough, then we're done!
             combot.update_internal_position_model()
             current_position: Position = combot.get_position()
