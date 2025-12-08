@@ -40,6 +40,40 @@ def perform_test_2(combot, timestep):
     print("Test 2 complete!")
 
 
+def perform_test_3(combot, timestep):
+    print("Performing test 3...")
+
+    print("Performing manouvre 1...")
+    manouvre_complete = False
+    counter = 0
+    while not manouvre_complete:
+        manouvre_complete = combot.move_to_position(Position(-1, 0.1, 2 * math.pi - 0.01), counter)
+        combot.step(timestep)
+        counter += 1
+    print("Manouvre 1 complete!")
+
+
+    print("Performing manouvre 2...")
+    manouvre_complete = False
+    counter = 0
+    while not manouvre_complete:
+        manouvre_complete = combot.move_to_position(Position(1, 0, 0), counter)
+        combot.step(timestep)
+        counter += 1
+
+    print("Manouvre 2 complete!")
+
+    print("Performing manouvre 3...")
+    manouvre_complete = False
+    counter = 0
+    while not manouvre_complete:
+        manouvre_complete = combot.move_to_position(Position(0, 0, math.pi / 2), counter)
+        combot.step(timestep)
+        counter += 1
+
+    print("Manouvre 3 complete!")
+
+
 def main():
 
     combot: Combot = Combot()
@@ -70,7 +104,8 @@ def main():
 
     # Perform the localisation tests
     # perform_test_1(combot, timestep)
-    perform_test_2(combot, timestep)
+    # perform_test_2(combot, timestep)
+    perform_test_3(combot, timestep)
 
 
 if __name__ == "__main__":

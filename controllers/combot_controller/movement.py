@@ -185,10 +185,10 @@ def rotate_to_heading(target_heading: float, moving_backwards):
         return
 
     if delta_heading < 0:
-        turn(TurnDirection.RIGHT, 2, moving_backwards=moving_backwards) # Pass in speed - smaller turns performed slower.
+        turn(TurnDirection.RIGHT, 2, moving_backwards=False) # Pass in speed - smaller turns performed slower.
 
     if delta_heading > 0:
-        turn(TurnDirection.LEFT, 2, moving_backwards=moving_backwards)
+        turn(TurnDirection.LEFT, 2, moving_backwards=False)
 
     finished_turn_procedure = False
     while not finished_turn_procedure:
