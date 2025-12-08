@@ -31,13 +31,13 @@ class Combot(Supervisor):
 
     def update_internal_position_model(self) -> None:
         if self.localisation is None:
-            from controllers.combot_controller.localisation import Localisation
+            from localisation import Localisation
             self.localisation = Localisation(combot_obj=self)
         self.position = self.localisation.update_internal_position_model()
 
     def get_position(self) -> Position:
         if self.localisation is None:
-            from controllers.combot_controller.localisation import Localisation
+            from localisation import Localisation
             self.localisation = Localisation(combot_obj=self)
         return self.position
 
@@ -48,10 +48,10 @@ class Combot(Supervisor):
         If it returns false, increment a timestep, increment the counter by one, and call it again.
         """
         if self.localisation is None:
-            from controllers.combot_controller.localisation import Localisation
+            from localisation import Localisation
             self.localisation = Localisation(combot_obj=self)
         if self.movement is None or counter == 0:
-            from controllers.combot_controller.movement import Movement
+            from movement import Movement
             self.movement = Movement(combot=self, target_position=position)
         return self.movement.move_to_position(counter=counter)
 
@@ -65,7 +65,7 @@ class Combot(Supervisor):
     
     def get_enemy_position(self):
         if self.localisation is None:
-            from controllers.combot_controller.localisation import Localisation
+            from localisation import Localisation
             self.localisation = Localisation(combot_obj=self)
         self.position = self.localisation.get_enemy_position()
 
