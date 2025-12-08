@@ -4,7 +4,7 @@ import random
 from copy import copy
 from dataclasses import dataclass
 
-from controllers.combot_controller.shared_dataclasses import Position
+from shared_dataclasses import Position
 from typing import List, Tuple, Optional
 
 from controller import PositionSensor, Lidar, DistanceSensor
