@@ -239,9 +239,9 @@ class Particle:
         delta_x = delta_s * math.cos(heading + delta_theta / 2)
         delta_y = delta_s * math.sin(heading + delta_theta / 2)
 
-        delta_x += random.gauss(0, 0.005) # Add gaussian uncertainty
-        delta_y += random.gauss(0, 0.005)
-        delta_theta = (delta_theta + random.gauss(0, 0.005)) % (2 * math.pi)
+        delta_x += random.gauss(0, 0.002) # Add gaussian uncertainty
+        delta_y += random.gauss(0, 0.002)
+        delta_theta = (delta_theta + random.gauss(0, 0.02)) % (2 * math.pi)
 
         self.position = self.position.add(delta_x, delta_y, delta_theta) # Update the position
 

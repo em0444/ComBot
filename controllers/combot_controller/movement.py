@@ -15,6 +15,8 @@ class Movement:
 
     def __init__(self, combot: Combot, target_position: Position):
         # First calculate the rotation that we need to achieve to get to the positon
+        self.already_performed_final_rotation = False
+        self.counter_finished_at = None
         self.target_pos = target_position
         self.combot_obj = combot
         self.finished = False
@@ -53,20 +55,18 @@ class Movement:
             self.required_turning_direction: Optional[TurnDirection] = None
             self.finished = False
 
-        if self.finished == True:
-            rotate_to_heading(self.target_pos.heading_in_radians)
-            return True # Tell them we're done
-
         # Only do these checks every 30 timesteps (1 timestep = 1 counter)
         if counter % 10 == 0 and not self.finished:
             #If we've travelled far enough, then we're done!
             combot.update_internal_position_model()
             current_position: Position = combot.get_position()
             amount_travelled = math.sqrt((current_position.x - self.starting_position.x) ** 2 + (current_position.y - self.starting_position.y) ** 2)
-            if amount_travelled > self.required_distance:
+            if amount_travelled > self.required_distance - 0.5: # Allow 0.5 metres of stopping distance for the motors to brake fully.
                 print("Combot now at destination position... Killing motors.")
                 turn(TurnDirection.STOP, 0.0)
                 self.finished = True
+                self.counter_finished_at = counter # Find what step we finished at so we can wait a few steps to stop
+
 
             # Adjust course so we're still moving on the right heading
             current_heading = combot.localisation.inertial_heading.get_heading_in_radians()
@@ -92,6 +92,15 @@ class Movement:
 
             # Tell them we're not done yet!
             return False
+
+        if self.finished and counter <= self.counter_finished_at + 80: # Wait 80 timesteps after finishing so the robot has time to properly stop
+            return False
+
+        if self.finished and counter > self.counter_finished_at + 80:
+            if not self.already_performed_final_rotation: # The caller is continually calling us despite already being done, don't turn again!
+                self.already_performed_final_rotation = True
+                rotate_to_heading(self.target_pos.heading_in_radians) # Once all that's done, rotate to the target heading
+            return True  # And tell the caller the manouvre is complete
 
 def begin_moving(combot, requested_delta_x, requested_delta_y, should_move_backwards):
     print("Begin moving.")
@@ -138,7 +147,7 @@ def turn(turning_direction: TurnDirection, turning_speed) -> None:
     print("Done!")
 
 amount_required_to_slow_down = 0.25
-satisfactory_finished_distance = 0.15
+satisfactory_finished_rotation_distance = 0.15
 
 def rotate_to_heading(target_heading: float):
     print(f"rotating to heading {target_heading}")
@@ -177,7 +186,7 @@ def rotate_to_heading(target_heading: float):
     print("Waiting for turn to be complete...")
     max_timesteps_to_wait = 75
     num_timesteps_waited = 0
-    while abs(target_heading - current_heading) >= satisfactory_finished_distance * delta_heading:
+    while abs(target_heading - current_heading) >= satisfactory_finished_rotation_distance * delta_heading:
         for i in range(10):
             combot.step(int(combot.getBasicTimeStep()))
             num_timesteps_waited += 1
