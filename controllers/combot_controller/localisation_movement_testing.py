@@ -21,7 +21,7 @@ def perform_test_1(combot, timestep):
     counter = 0
 
     while not test_1_complete:
-        test_1_complete = combot.move_to_position(Position(2.5, 1, math.pi), counter)
+        test_1_complete = combot.move_to_position(Position(2.5, 1, 3 * math.pi / 2), counter)
         combot.step(timestep)
         counter += 1
 
@@ -50,6 +50,10 @@ def main():
     print("Sensors ready.")
     print(arm.create_right_arm_chain())
 
+    # Assume en garde and wait a bit
+    fence.en_garde()
+    for i in range(100):
+        combot.step(timestep)
     perform_test_1(combot, timestep)
 
 
