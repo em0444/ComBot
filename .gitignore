@@ -300,3 +300,4 @@ $RECYCLE.BIN/
 
 #Ignore pycache files
 __pycache__
+/combot_urdf.urdf

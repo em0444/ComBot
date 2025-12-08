@@ -3,8 +3,6 @@ from typing import List, Tuple
 
 from controller import Supervisor, Robot
 from shared_dataclasses import Position
-# from arm import Arm
-# import fencing_constants as fc
 
 class Combot(Supervisor):
     _instance = None
@@ -26,24 +24,38 @@ class Combot(Supervisor):
             return
         super().__init__()
         self.localisation = None
+        self.movement = None
         self._initialized = True
         self.position = Position(0, 0, 0)
         # self.arm = Arm(self, config=fc.RIGHT_ARM_CONFIG)
 
     def update_internal_position_model(self) -> None:
         if self.localisation is None:
-            from localisation import Localisation
+            from controllers.combot_controller.localisation import Localisation
             self.localisation = Localisation(combot_obj=self)
         self.position = self.localisation.update_internal_position_model()
 
     def get_position(self) -> Position:
+        if self.localisation is None:
+            from controllers.combot_controller.localisation import Localisation
+            self.localisation = Localisation(combot_obj=self)
         return self.position
 
-    def move_to_position(self, position: Position) -> None:
-        from movement import move_to_position
-        move_to_position(combot_obj=self, target_pos=position)
+    def move_to_position(self, position: Position, counter: int) -> bool:
+        """
+        A non-blocking function to move the robot, while simultaneously allowing it to do other things.
+        Returns True if the robot has successfully completed the manouvre.
+        If it returns false, increment a timestep, increment the counter by one, and call it again.
+        """
+        if self.localisation is None:
+            from controllers.combot_controller.localisation import Localisation
+            self.localisation = Localisation(combot_obj=self)
+        if self.movement is None or counter == 0:
+            from controllers.combot_controller.movement import Movement
+            self.movement = Movement(combot=self, target_position=position)
+        return self.movement.move_to_position(counter=counter)
 
-    def get_arm_wrist_position(self): 
+    def get_arm_wrist_position(self):
         # return self.arm.get_arm_wrist()
         raise NotImplementedError()
     
@@ -53,7 +65,7 @@ class Combot(Supervisor):
     
     def get_enemy_position(self):
         if self.localisation is None:
-            from localisation import Localisation
+            from controllers.combot_controller.localisation import Localisation
             self.localisation = Localisation(combot_obj=self)
         self.position = self.localisation.get_enemy_position()
 
@@ -64,7 +76,7 @@ class Combot(Supervisor):
     
     def get_enemy_sword_position(self):
         raise NotImplementedError()
-    
+
     # def sword_is_contacting(self):
     #     supervisor_contact_points = self.supervisor_obj.getFromDef("FENCING_SWORD_SOLID").getContactPoints()
     #     return len(supervisor_contact_points) > 0 # If you want this to be less sensitive in future, set this = 1

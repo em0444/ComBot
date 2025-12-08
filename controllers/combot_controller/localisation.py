@@ -4,15 +4,14 @@ import random
 from copy import copy
 from dataclasses import dataclass
 
-from shared_dataclasses import Position
-from typing import List, Tuple
+from controllers.combot_controller.shared_dataclasses import Position
+from typing import List, Tuple, Optional
 
-from controller import PositionSensor, Lidar
-from combot import Combot
+from controller import PositionSensor, Lidar, DistanceSensor
+from controllers.combot_controller.combot import Combot
 
 global combot
 
-# distance_sensors: List[DistanceSensor] = [device for device in combot.devices.values() if isinstance(device, DistanceSensor)]
 
 class InertialHeading:
     def __init__(self):
@@ -32,9 +31,11 @@ class Localisation:
         global combot
         combot = combot_obj
 
+        # Initialise our various sensors
         self.lidar_array = LidarArray()
         self.wheel_odometry = WheelOdometry()
         self.inertial_heading = InertialHeading()
+        self.forwards_distance_sensing = ForwardsDistanceSensing()
 
         initial_random_particles = [Particle(Position(0, 0, 2 * math.pi)) for _ in range(num_particles)]
         self.particles = initial_random_particles
@@ -51,44 +52,57 @@ class Localisation:
         max_log_likelihood, min_log_likelihood = max([p.log_likelihood for p in self.particles]), min([p.log_likelihood for p in self.particles])
 
         for particle in self.particles:
-            particle.calculate_normalised_weight(max_log_likelihood, min_log_likelihood, self.num_particles)
+            particle.calculate_normalised_weight_between_0_and_1(max_log_likelihood, min_log_likelihood, self.num_particles)
+
+        self.particles = self.perform_resampling(sorted(self.particles, key=lambda p: p.normalised_weight, reverse=True))
 
         best_particle = sorted(self.particles, key=lambda p: p.normalised_weight, reverse=True)[0]
 
-        for particle in self.particles:
-            particle.position = copy(best_particle.position)
-            particle.position = Position(x=particle.position.x, y=particle.position.y, heading_in_radians=self.inertial_heading.get_heading_in_radians())
-
         return copy(best_particle.position)
 
-
-
-        # test_particles = []
-        # for i in range(5):
-        #     for j in range(5):
-        #         some_particle = Particle(Position(x=(i*0.5), y=(j*0.5), heading_in_radians=math.pi))
-        #         test_particles.append(some_particle)
-        #
-        # self.particles = test_particles
-        #
-        # for particle in self.particles:
-        #     particle.calculate_log_likelihood(odometry_change_data, lidar_data)
-        #
-        # max_log_likelihood, min_log_likelihood = max([p.log_likelihood for p in self.particles]), min([p.log_likelihood for p in self.particles])
-        #
-        # for particle in self.particles:
-        #     particle.calculate_normalised_weight(max_log_likelihood, min_log_likelihood, self.num_particles)
-        #
-        # self.particles = random.choices(self.particles, weights=[p.normalised_weight for p in self.particles], k=self.num_particles) # Perform the actual resampling step
-        #
-        # best_three_particles = sorted(self.particles, key=lambda p: p.normalised_weight, reverse=True)[:3]
-        # print((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
-        # return((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
-
-    def get_enemy_position(self):
+    def get_enemy_position(self) -> Optional[Position]:
+        # Get sensor data
         combot.update_internal_position_model()
-        raise NotImplementedError()
+        current_position: Position = combot.get_position()
+        distance_from_front_to_nearest_object = self.forwards_distance_sensing.get_forwards_distance_in_metres()
 
+        # Figure out the position we've sensed in front of us
+        sensed_x = current_position.x + (math.cos(self.inertial_heading.get_heading_in_radians()) * distance_from_front_to_nearest_object)
+        sensed_y = current_position.y + (math.sin(self.inertial_heading.get_heading_in_radians()) * distance_from_front_to_nearest_object)
+
+        # Figure out if we've sensed the enemy or just sensed the wall
+        sensed_position_is_close_to_wall = False
+        position_offsets = [-0.2, 0.2]
+        for x_offset in position_offsets:
+            for y_offset in position_offsets:
+                offset_position = Position(sensed_x + x_offset, sensed_y + y_offset, 0.0)
+                if not offset_position.is_in_map():
+                    sensed_position_is_close_to_wall = True
+
+        # If we've sensed a wall, we've not found the enemy
+        if sensed_position_is_close_to_wall:
+            return None
+        return Position(sensed_x, sensed_y, 0.0)
+
+    def perform_resampling(self, particles: List[Particle]) -> List[Particle]:
+
+        # The particles now have weights normalised between 0 and 1, but we need to make them sum to 1.
+        weight_sum = sum([p.normalised_weight for p in particles])
+        for particle in particles:
+            particle.normalised_weight = particle.normalised_weight / weight_sum
+
+        new_particles = []
+        for i in range(len(particles)):
+            random_num = random.uniform(0, 0.9999) # Set to 0.9999 to avoid instability issues with small numbers
+            for particle in particles: # Climb up the CDF of particle probabilities until we've got to our random number.
+                if random_num < particle.normalised_weight:
+                    new_particle = copy(particle)
+                    new_particle.position = Position(x=particle.position.x, y=particle.position.y, heading_in_radians=self.inertial_heading.get_heading_in_radians()) # Update the heading with our inertial heading too, for accuracy.
+                    new_particles.append(new_particle)
+                    break
+                else: # We need to sample a less likely particle, continue climbing the CDF
+                    random_num = random_num - particle.normalised_weight
+        return new_particles
 
 class WheelOdometry:
     # Moving striaght into the wall gives us values 43, 43, when we reach it. Dividing by actual distance travelled gets us a (rounded) scale factor of 10.
@@ -144,6 +158,16 @@ class LidarArray:
 
         return vision
 
+class ForwardsDistanceSensing:
+    def __init__(self):
+        self.distance_sensors: List[DistanceSensor] = [device for device in combot.devices.values() if isinstance(device, DistanceSensor)]
+        self.distance_sensors[2].__init__("base_sonar_03_link", int(combot.getBasicTimeStep()))
+
+    def get_forwards_distance_in_metres(self):
+        return self.distance_sensors[2].getValue() / 1000 * 3
+
+
+
 
 class Particle:
     def __init__(self, position=None):
@@ -152,6 +176,7 @@ class Particle:
         else:
             self.position: Position = position
         self.log_likelihood = 0
+        self.normalised_weight = 0
 
     def calculate_log_likelihood(self, odometry_change_data: OdometryChange, real_lidar_data: List[LidarRay]) -> None:
 
@@ -214,17 +239,18 @@ class Particle:
         delta_x = delta_s * math.cos(heading + delta_theta / 2)
         delta_y = delta_s * math.sin(heading + delta_theta / 2)
 
-        delta_x += random.gauss(0, 0.005) # Add gaussian uncertainty
-        delta_y += random.gauss(0, 0.005)
-        delta_theta = (delta_theta + random.gauss(0, 0.005)) % (2 * math.pi)
+        delta_x += random.gauss(0, 0.002) # Add gaussian uncertainty
+        delta_y += random.gauss(0, 0.002)
+        delta_theta = (delta_theta + random.gauss(0, 0.02)) % (2 * math.pi)
 
         self.position = self.position.add(delta_x, delta_y, delta_theta) # Update the position
 
-    def calculate_normalised_weight(self, max_log_likelihood, min_log_likelihood, num_particles) -> None:
+    def calculate_normalised_weight_between_0_and_1(self, max_log_likelihood, min_log_likelihood, num_particles) -> None:
         if max_log_likelihood == min_log_likelihood:
             self.normalised_weight = 1 / num_particles
         else:
             self.normalised_weight = (self.log_likelihood - min_log_likelihood) / (max_log_likelihood - min_log_likelihood)
+            self.normalised_weight = self.normalised_weight ** 5 # Make filtering more agressive
 
 
 @dataclass(frozen=True)

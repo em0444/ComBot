@@ -69,8 +69,7 @@ def main():
     left_wheel.setPosition(float('inf'))
     right_wheel.setPosition(float('inf'))
 
-    done = False # Flag to ensure move_to_position is called only once
-
+    counter = 0
     try:
         while combot.step(timestep) != -1:
 
@@ -83,23 +82,19 @@ def main():
                 left_wheel.setVelocity(speed_left)
                 right_wheel.setVelocity(speed_right)
 
-                handle_fencing_action(key, arm)
-            else:
-                left_wheel.setVelocity(0.0)
-                right_wheel.setVelocity(0.0)
 
-            fence.check_hit()
-
-            # combot.update_internal_position_model()
-            # print(combot.get_position())
-
-            # if not done:
-            #     print("sending command to move robot to position...")
-            #     combot.move_to_position(Position(3, 1, math.pi))
-            #     done = True
+            combot.move_to_position(Position(3, 1, math.pi), counter)
+            counter +=1
             # move = strat.strategy7(combot)
             # if move is not None:
             #     move()
+
+            # # enable RGBD camera
+            # rgb_camera = wb.wb_robot_get_device("Astra rgb")
+            # wb.wb_camera_enable(rgb_camera, timestep)
+            # depth_camera = wb.wb_robot_get_device("Astra depth")
+            # wb.wb_range_finder_enable(depth_camera, timestep)
+
             
     except KeyboardInterrupt:   
         print("Controller stopped by user.")
