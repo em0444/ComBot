@@ -50,7 +50,6 @@ class Movement:
             begin_moving(combot, self.requested_delta_x, self.requested_delta_y, self.moving_backwards)
 
 
-            self.last_turning_direction: Optional[TurnDirection] = None
             self.required_turning_direction: Optional[TurnDirection] = None
             self.finished = False
 
@@ -70,8 +69,7 @@ class Movement:
                 self.finished = True
 
             # Adjust course so we're still moving on the right heading
-            current_heading = combot.get_position().heading_in_radians
-
+            current_heading = combot.localisation.inertial_heading.get_heading_in_radians()
             turning_direction_in_radians = (self.required_heading - current_heading) % (2 * math.pi)
             if turning_direction_in_radians > math.pi:
                 turning_direction_in_radians -= 2 * math.pi

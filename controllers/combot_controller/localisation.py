@@ -255,6 +255,7 @@ class Particle:
             self.normalised_weight = 1 / num_particles
         else:
             self.normalised_weight = (self.log_likelihood - min_log_likelihood) / (max_log_likelihood - min_log_likelihood)
+            self.normalised_weight = self.normalised_weight ** 5
 
 
 @dataclass(frozen=True)

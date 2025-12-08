@@ -24,6 +24,7 @@ class Combot(Robot):
             return
         super().__init__()
         self.localisation = None
+        self.movement = None
         self._initialized = True
         self.position = Position(0, 0, 0)
 
@@ -42,13 +43,16 @@ class Combot(Robot):
     def move_to_position(self, position: Position, counter: int) -> bool:
         """
         A non-blocking function to move the robot, while simultaneously allowing it to do other things.
+        Returns True if the robot has successfully completed the manouvre.
+        If it returns false, increment a timestep, increment the counter by one, and call it again.
         """
         if self.localisation is None:
             from controllers.combot_controller.localisation import Localisation
             self.localisation = Localisation(combot_obj=self)
-        from controllers.combot_controller.movement import Movement
-        combot_movement = Movement(combot=self, target_position=position)
-        return combot_movement.move_to_position(counter=counter)
+        if self.movement is None or counter == 0:
+            from controllers.combot_controller.movement import Movement
+            self.movement = Movement(combot=self, target_position=position)
+        return self.movement.move_to_position(counter=counter)
 
     def get_arm_position(self):
         raise NotImplementedError()
