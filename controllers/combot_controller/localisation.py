@@ -52,39 +52,13 @@ class Localisation:
         max_log_likelihood, min_log_likelihood = max([p.log_likelihood for p in self.particles]), min([p.log_likelihood for p in self.particles])
 
         for particle in self.particles:
-            particle.calculate_normalised_weight(max_log_likelihood, min_log_likelihood, self.num_particles)
+            particle.calculate_normalised_weight_between_0_and_1(max_log_likelihood, min_log_likelihood, self.num_particles)
+
+        self.particles = self.perform_resampling(sorted(self.particles, key=lambda p: p.normalised_weight, reverse=True))
 
         best_particle = sorted(self.particles, key=lambda p: p.normalised_weight, reverse=True)[0]
 
-        for particle in self.particles:
-            particle.position = copy(best_particle.position)
-            particle.position = Position(x=particle.position.x, y=particle.position.y, heading_in_radians=self.inertial_heading.get_heading_in_radians())
-
         return copy(best_particle.position)
-
-
-
-        # test_particles = []
-        # for i in range(5):
-        #     for j in range(5):
-        #         some_particle = Particle(Position(x=(i*0.5), y=(j*0.5), heading_in_radians=math.pi))
-        #         test_particles.append(some_particle)
-        #
-        # self.particles = test_particles
-        #
-        # for particle in self.particles:
-        #     particle.calculate_log_likelihood(odometry_change_data, lidar_data)
-        #
-        # max_log_likelihood, min_log_likelihood = max([p.log_likelihood for p in self.particles]), min([p.log_likelihood for p in self.particles])
-        #
-        # for particle in self.particles:
-        #     particle.calculate_normalised_weight(max_log_likelihood, min_log_likelihood, self.num_particles)
-        #
-        # self.particles = random.choices(self.particles, weights=[p.normalised_weight for p in self.particles], k=self.num_particles) # Perform the actual resampling step
-        #
-        # best_three_particles = sorted(self.particles, key=lambda p: p.normalised_weight, reverse=True)[:3]
-        # print((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
-        # return((best_three_particles[0].position.x + best_three_particles[1].position.x + best_three_particles[2].position.x)/3, (best_three_particles[0].position.y + best_three_particles[1].position.y + best_three_particles[2].position.y)/3 )
 
     def get_enemy_position(self) -> Optional[Position]:
         # Get sensor data
@@ -109,6 +83,26 @@ class Localisation:
         if sensed_position_is_close_to_wall:
             return None
         return Position(sensed_x, sensed_y, 0.0)
+
+    def perform_resampling(self, particles: List[Particle]) -> List[Particle]:
+
+        # The particles now have weights normalised between 0 and 1, but we need to make them sum to 1.
+        weight_sum = sum([p.normalised_weight for p in particles])
+        for particle in particles:
+            particle.normalised_weight = particle.normalised_weight / weight_sum
+
+        new_particles = []
+        for i in range(len(particles)):
+            random_num = random.uniform(0, 0.9999) # Set to 0.9999 to avoid instability issues with small numbers
+            for particle in particles: # Climb up the CDF of particle probabilities until we've got to our random number.
+                if random_num < particle.normalised_weight:
+                    new_particle = copy(particle)
+                    new_particle.position = Position(x=particle.position.x, y=particle.position.y, heading_in_radians=self.inertial_heading.get_heading_in_radians()) # Update the heading with our inertial heading too, for accuracy.
+                    new_particles.append(new_particle)
+                    break
+                else: # We need to sample a less likely particle, continue climbing the CDF
+                    random_num = random_num - particle.normalised_weight
+        return new_particles
 
 class WheelOdometry:
     # Moving striaght into the wall gives us values 43, 43, when we reach it. Dividing by actual distance travelled gets us a (rounded) scale factor of 10.
@@ -182,6 +176,7 @@ class Particle:
         else:
             self.position: Position = position
         self.log_likelihood = 0
+        self.normalised_weight = 0
 
     def calculate_log_likelihood(self, odometry_change_data: OdometryChange, real_lidar_data: List[LidarRay]) -> None:
 
@@ -250,12 +245,12 @@ class Particle:
 
         self.position = self.position.add(delta_x, delta_y, delta_theta) # Update the position
 
-    def calculate_normalised_weight(self, max_log_likelihood, min_log_likelihood, num_particles) -> None:
+    def calculate_normalised_weight_between_0_and_1(self, max_log_likelihood, min_log_likelihood, num_particles) -> None:
         if max_log_likelihood == min_log_likelihood:
             self.normalised_weight = 1 / num_particles
         else:
             self.normalised_weight = (self.log_likelihood - min_log_likelihood) / (max_log_likelihood - min_log_likelihood)
-            self.normalised_weight = self.normalised_weight ** 5
+            self.normalised_weight = self.normalised_weight ** 5 # Make filtering more agressive
 
 
 @dataclass(frozen=True)
