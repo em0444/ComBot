@@ -16,6 +16,8 @@ wb = c_webots_api.wb
 
 
 def perform_test_1(combot, timestep):
+    """
+    """
     print("Performing test 1...")
     test_1_complete = False
     counter = 0
@@ -47,7 +49,7 @@ def perform_test_3(combot, timestep):
     manouvre_complete = False
     counter = 0
     while not manouvre_complete:
-        manouvre_complete = combot.move_to_position(Position(-1, 0.1, 2 * math.pi - 0.01), counter)
+        manouvre_complete = combot.move_to_position(Position(-1, 0.1, 0), counter)
         combot.step(timestep)
         counter += 1
     print("Manouvre 1 complete!")
@@ -67,7 +69,7 @@ def perform_test_3(combot, timestep):
     manouvre_complete = False
     counter = 0
     while not manouvre_complete:
-        manouvre_complete = combot.move_to_position(Position(0, 0, math.pi / 2), counter)
+        manouvre_complete = combot.move_to_position(Position(0, 0, 0.1), counter)
         combot.step(timestep)
         counter += 1
 
