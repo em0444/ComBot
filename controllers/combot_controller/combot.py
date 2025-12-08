@@ -1,11 +1,10 @@
 import math
 from typing import List, Tuple
 
-from controller import Robot
-from controllers.combot_controller.shared_dataclasses import Position
+from controller import Supervisor, Robot
+from shared_dataclasses import Position
 
-
-class Combot(Robot):
+class Combot(Supervisor):
     _instance = None
     changing_body_state = False
     body_state = "DEFAULT"
@@ -13,6 +12,7 @@ class Combot(Robot):
     base_state = "STILL"
     timeCounter = 0.0
     cycleIndex = -1
+
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
@@ -27,6 +27,7 @@ class Combot(Robot):
         self.movement = None
         self._initialized = True
         self.position = Position(0, 0, 0)
+        # self.arm = Arm(self, config=fc.RIGHT_ARM_CONFIG)
 
     def update_internal_position_model(self) -> None:
         if self.localisation is None:
@@ -54,10 +55,12 @@ class Combot(Robot):
             self.movement = Movement(combot=self, target_position=position)
         return self.movement.move_to_position(counter=counter)
 
-    def get_arm_position(self):
+    def get_arm_wrist_position(self):
+        # return self.arm.get_arm_wrist()
         raise NotImplementedError()
     
-    def get_sword_position(self):
+    def get_sword_tip_position(self):
+        # return self.arm.get_real_sword_tip()
         raise NotImplementedError()
     
     def get_enemy_position(self):
