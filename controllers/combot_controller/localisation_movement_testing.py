@@ -27,6 +27,19 @@ def perform_test_1(combot, timestep):
 
     print("Test 1 complete!")
 
+def perform_test_2(combot, timestep):
+    print("Performing test 2...")
+    test_1_complete = False
+    counter = 0
+
+    while not test_1_complete:
+        test_1_complete = combot.move_to_position(Position(-2.5, 0.1, 0), counter)
+        combot.step(timestep)
+        counter += 1
+
+    print("Test 2 complete!")
+
+
 def main():
 
     combot: Combot = Combot()
@@ -54,7 +67,10 @@ def main():
     fence.en_garde()
     for i in range(100):
         combot.step(timestep)
-    perform_test_1(combot, timestep)
+
+    # Perform the localisation tests
+    # perform_test_1(combot, timestep)
+    perform_test_2(combot, timestep)
 
 
 if __name__ == "__main__":
