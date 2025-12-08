@@ -32,7 +32,7 @@ class Movement:
     def move_to_position(self, counter) -> bool:
         global combot, target_position
         combot, target_position = self.combot_obj, self.target_pos
-        print(self.combot_obj.get_position())
+        
 
         # Non-blocking code: If the counter = 0, then we've not started the turn yet
         if counter == 0:
