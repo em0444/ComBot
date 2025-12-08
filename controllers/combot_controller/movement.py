@@ -146,13 +146,14 @@ def turn(turning_direction: TurnDirection, turning_speed) -> None:
     combot.getDevice("wheel_right_joint").setVelocity(wheel_right_velocity)
     print("Done!")
 
-amount_required_to_slow_down = 0.25
+amount_required_to_slow_down = 0.2
 satisfactory_finished_rotation_distance = 0.15
 
 def rotate_to_heading(target_heading: float):
     print(f"rotating to heading {target_heading}")
     current_heading = combot.localisation.inertial_heading.get_heading_in_radians()
     delta_heading = (target_heading - current_heading) % (2 * math.pi)
+    max_turn_speed = 0.4
     if delta_heading > math.pi:
         delta_heading -= 2 * math.pi
 
@@ -164,10 +165,10 @@ def rotate_to_heading(target_heading: float):
         return
 
     if delta_heading < 0:
-        turn(TurnDirection.RIGHT, abs(delta_heading / 2 * math.pi)) # Pass in speed - smaller turns performed slower.
+        turn(TurnDirection.RIGHT, 2) # Pass in speed - smaller turns performed slower.
 
     if delta_heading > 0:
-        turn(TurnDirection.LEFT, abs(delta_heading / 2 * math.pi))
+        turn(TurnDirection.LEFT, 2)
 
     finished_turn_procedure = False
     while not finished_turn_procedure:
@@ -178,7 +179,7 @@ def rotate_to_heading(target_heading: float):
 
         # See if we need to start slowing down
         current_heading = combot.localisation.inertial_heading.get_heading_in_radians()
-        if abs(target_heading - current_heading) <= amount_required_to_slow_down * delta_heading:
+        if abs(target_heading - current_heading) <= amount_required_to_slow_down:
             turn(TurnDirection.STOP, 0.0)
             finished_turn_procedure = True
 
