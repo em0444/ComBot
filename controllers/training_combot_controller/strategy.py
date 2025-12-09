@@ -1,6 +1,7 @@
 from trainer_fencing_actions import lunge, parry_high, parry_low, en_garde, move_backward, move_forward, move_stop
 import random
 from threading import Thread
+from math import sqrt
 
 HITRANGE = 1.0
 ALLBODYACTIONS =  [lunge, parry_high,parry_low,en_garde]
@@ -30,7 +31,7 @@ def mergeStrategies(strat1,strat2):
     return newMergedStrategy
 
 def distance(vec1,vec2):
-    return ((vec1[0]-vec2[0])^2 + (vec1[1]-vec2[1])^2 + (vec1[2]-vec2[2])^2)^0.5
+    return sqrt((vec1[0]-vec2[0])**2 + (vec1[1]-vec2[1])**2 + (vec1[2]-vec2[2])**2)
 
 def strategy0(robot):
     return None
