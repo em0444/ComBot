@@ -93,11 +93,10 @@ class Combot(Supervisor):
         self.previouspreviousEnemyPosition = self.previousEnemyPosition
         self.previousEnemyPosition = self.enemyPosition
         self.previousEnemyVelocityX = self.previousEnemyPosition.x-self.previouspreviousEnemyPosition.x
-        try:
-            self.enemyPosition = self.localisation.get_enemy_position()
-        except Exception:
+        self.enemyPosition = self.localisation.get_enemy_position()
+        if self.enemyPosition is None:
             self.enemyPosition = Position((self.getFromDef("OPP").getPosition()[0]),0.0,-math.pi)
-            print("Lidar not loaded")
+            #print("Lidar not loaded")
         return self.enemyPosition
     
     def get_enemy_x_velocity(self):
