@@ -12,13 +12,13 @@ class Combot(Supervisor):
     base_state = "STILL"
     timeCounter = 0.0
     cycleIndex = -1
-    previousPosition = -2.0
-    previouspreviousPosition = -2.0
-    previousVelocity = 0.0
-    enemyPosition = 2.0
-    previousEnemyPosition = 2.0
-    previouspreviousEnemyPosition = 2.0
-    previousEnemyVelocity = 0.0
+    previousPosition = Position(-2.0,0.0,0.0)
+    previouspreviousPosition = Position(-2.0,0.0,0.0)
+    previousVelocityX = 0.0
+    enemyPosition = Position(2.0,0.0,math.pi)
+    previousEnemyPosition = Position(2.0,0.0,math.pi)
+    previouspreviousEnemyPosition = Position(2.0,0.0,math.pi)
+    previousEnemyVelocityX = 0.0
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -42,7 +42,7 @@ class Combot(Supervisor):
             self.localisation = Localisation(combot_obj=self)
         self.previouspreviousPosition = self.previousPosition
         self.previousPosition = self.position
-        self.previousVelocity = self.previousPosition-self.previouspreviousPosition
+        self.previousVelocityX = self.previousPosition.x-self.previouspreviousPosition.x
         self.position = self.localisation.update_internal_position_model()
 
     def get_position(self) -> Position:
@@ -61,7 +61,7 @@ class Combot(Supervisor):
         return (self.position.heading_in_radians-self.previousPosition.heading_in_radians)
     
     def get_x_acceleration(self):
-        return (self.get_x_velocity-self.previousVelocity)
+        return (self.get_x_velocity()-self.previousVelocityX)
     
 
     def move_to_position(self, position: Position, counter: int) -> bool:
@@ -92,21 +92,40 @@ class Combot(Supervisor):
             self.localisation = Localisation(combot_obj=self)
         self.previouspreviousEnemyPosition = self.previousEnemyPosition
         self.previousEnemyPosition = self.enemyPosition
-        self.previousEnemyVelocity = self.previousEnemyPosition-self.previouspreviousEnemyPosition
-        self.enemyPosition = self.localisation.get_enemy_position()
+        self.previousEnemyVelocityX = self.previousEnemyPosition.x-self.previouspreviousEnemyPosition.x
+        try:
+            self.enemyPosition = self.localisation.get_enemy_position()
+        except Exception:
+            self.enemyPosition = Position(self.getFromDef("OPP").getPosition()[0],0,-math.pi)
+            print("Lidar not loaded")
         return self.enemyPosition
     
     def get_enemy_x_velocity(self):
-        return self.enemyPosition-self.previousEnemyPosition
+        return self.enemyPosition.x-self.previousEnemyPosition.x
     
     def get_enemy_x_acceleration(self):
-        return self.get_enemy_x_velocity()-self.previousEnemyVelocity
+        return self.get_enemy_x_velocity()-self.previousEnemyVelocityX
     
     def get_enemy_arm_position(self):
         raise NotImplementedError()
     
     def get_enemy_sword_position(self):
         raise NotImplementedError()
+    
+    def reset(self):
+        self.changing_body_state = False
+        self.body_state = "DEFAULT"
+        self.changing_base_state = False
+        self.base_state = "STILL"
+        self.timeCounter = 0.0
+        self.cycleIndex = -1
+        self.previousPosition = Position(-2.0,0.0,0.0)
+        self.previouspreviousPosition = Position(-2.0,0.0,0.0)
+        self.previousVelocityX = 0.0
+        self.enemyPosition = Position(2.0,0.0,math.pi)
+        self.previousEnemyPosition = Position(2.0,0.0,math.pi)
+        self.previouspreviousEnemyPosition = Position(2.0,0.0,math.pi)
+        self.previousEnemyVelocityX = 0.0
 
     # def sword_is_contacting(self):
     #     supervisor_contact_points = self.supervisor_obj.getFromDef("FENCING_SWORD_SOLID").getContactPoints()
