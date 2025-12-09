@@ -96,7 +96,7 @@ class Combot(Supervisor):
         try:
             self.enemyPosition = self.localisation.get_enemy_position()
         except Exception:
-            self.enemyPosition = Position(self.getFromDef("OPP").getPosition()[0],0,-math.pi)
+            self.enemyPosition = Position((self.getFromDef("OPP").getPosition()[0]),0.0,-math.pi)
             print("Lidar not loaded")
         return self.enemyPosition
     
