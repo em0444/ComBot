@@ -50,11 +50,11 @@ def execute_fencing_action(action_name: str, angle_preset: list, ik_config: dict
     else:
         target_position = ik_config["position"]
     
-    arm.move_to_target(
-        target_position=target_position,
-        orientation_mode=ik_config["mode"],
-        target_orientation=ik_config["vector"]
-    )
+    #arm.move_to_target(
+    #    target_position=target_position,
+    #    orientation_mode=ik_config["mode"],
+    #    target_orientation=ik_config["vector"]
+    #)
     
     # Update final state
     combot.body_state = action_name
@@ -116,17 +116,17 @@ def check_hit() -> bool:
 # Movement Helpers
 def move_forward():
     """Move the robot base forward at maximum velocity."""
-    max_velocity = combot.getDevice("wheel_left_joint").getMaxVelocity()
-    set_wheel_velocity(max_velocity)
+    #max_velocity = combot.getDevice("wheel_left_joint").getMaxVelocity()
+    #set_wheel_velocity(max_velocity)
     set_base_state("FORWARD")
 
 def move_backward():
     """Move the robot base backward at maximum velocity."""
-    max_velocity = combot.getDevice("wheel_left_joint").getMaxVelocity()
-    set_wheel_velocity(-max_velocity)
+    #max_velocity = combot.getDevice("wheel_left_joint").getMaxVelocity()
+    #set_wheel_velocity(-max_velocity)
     set_base_state("BACKWARD")
 
 def move_stop():
     """Stop the robot base completely."""
-    set_wheel_velocity(0)
+    #set_wheel_velocity(0)
     set_base_state("STILL")
