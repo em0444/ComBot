@@ -196,7 +196,7 @@ def optimize_model():
     optimizer.step()
 
 if torch.cuda.is_available() or torch.backends.mps.is_available():
-    num_episodes = 600
+    num_episodes = 800
 else:
     num_episodes = 50
 
@@ -269,7 +269,7 @@ def getReward(combotNode,trainerNode):
         return (torch.tensor([-100], device=device),True,"Fencer fell over")
     if (hasFallen(trainerNode.getOrientation())):
         print("Trainer fallen over")
-        return (torch.tensor([1000], device=device),True,"Opponent fell over")
+        return (torch.tensor([200], device=device),True,"Opponent fell over")
     if distance(combotNode.getPosition(),trainerNode.getPosition())<1:
         print("Too close")
         return (torch.tensor([-50], device=device),True,"Fencer got to close to opponent")
@@ -278,8 +278,10 @@ def getReward(combotNode,trainerNode):
     if check_hit():
         if distance(combotNode.getPosition(),trainerNode.getPosition())<1.8:
             print("Opponent body hit")
-            return (torch.tensor([100], device=device),True,"Fencer hit opponent")
+            return (torch.tensor([200], device=device),True,"Fencer hit opponent")
     
     if (distance(combotNode.getPosition(),trainerNode.getPosition())>3):
-        return (torch.tensor([-1], device=device),False,None)
+        return (torch.tensor([-0.5], device=device),False,None)
+    if (distance(combotNode.getPosition(),trainerNode.getPosition())>2 and distance(combotNode.getPosition(),trainerNode.getPosition())<1.5):
+        return (torch.tensor([0.2], device=device),False,None)
     return (torch.tensor([0], device=device),False,None)
