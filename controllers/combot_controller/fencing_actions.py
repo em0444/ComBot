@@ -48,8 +48,8 @@ def execute_fencing_action(action_name: str, angle_preset: list, ik_config: dict
     if action_name == "LUNGE":
         target_position = arm.get_opponent_target()
     else:
-        target_position = ik_config["position"]
-    
+        target_position = arm.get_sword_target_position(ik_config["position"])
+        
     arm.move_to_target(
         target_position=target_position,
         orientation_mode=ik_config["mode"],

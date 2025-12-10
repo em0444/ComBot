@@ -7,7 +7,7 @@ Stores joint names, configuration, and PRESET ANGLES.
 RIGHT_ARM_CONFIG = {
     "name": "arm_right_chain",
     "base_elements": ["base_link", "arm_right_1_joint"],
-    "tip_offset": [0.0, 0.75, 0.01],  # includes sword length from the wrist joint
+    "tip_offset": [0.0, 0.56, 0.06],  # includes sword length from the wrist joint
     "joint_names": [
         "arm_right_1_joint", "arm_right_2_joint", "arm_right_3_joint",
         "arm_right_4_joint", "arm_right_5_joint", "arm_right_6_joint", "arm_right_7_joint"
@@ -17,7 +17,7 @@ RIGHT_ARM_CONFIG = {
 # Pose Definitions
 # Standard defensive stance
 EN_GARDE_ANGLES = [
-    -0.3, 0.00, 0.35, 1.50, 1.1, 0.00, 1.57, 1.00, 
+    -0.3, 0.00, 0.15, 1.50, 1.1, 0.00, 1.57, 1.00, 
     0.00, 0.00, -0.80, -0.50, -0.27, 1.57, -2.00, 1.20, 2.00
 ]
 # Extends the sword arm forward
@@ -45,25 +45,25 @@ FULL_BODY_PART_NAMES = [
     "arm_left_4_joint", "arm_left_5_joint", "arm_left_6_joint", "arm_left_7_joint"
 ]
 
-#q Defines target positions and orientations for IK-based movements
+# Defines target positions and orientations for IK-based movements
 IK_MOVES = {
     "LUNGE": {
-        "mode":   "Z",              
-        "vector": [0, 0.0, 1.0]  
+        "mode":   None,              
+        "vector": [0, 0, 1]  
     },
     "EN_GARDE": {
         "position":    [0.6, -0.1, 0.4], 
         "mode":   "Z",                   
-        "vector": [1, -1, 0]        
+        "vector": [0, -0.5, 1]        
     },
     "PARRY_HIGH": {
-        "position":    [0.4,  0.10,  0.30],
+        "position":    [0.5,  0.4,  0.5],
         "mode":   "X",                    
         "vector": [0.0, 0.0, 1.0]         
     },
     "PARRY_LOW": {
-        "position":    [0.4, 0.3, -0.4],
+        "position":    [0.5, 0.4, 0.2],
         "mode":   "X",
-        "vector": [0, 0, -1.0]       
+        "vector": [0, 0.7, 1.0]       
     }
 }

@@ -5,14 +5,13 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/devices/velodyne/protos/VelodyneVLP-16.proto"
 EXTERNPROTO "../protos/Tiago++.proto"
-EXTERNPROTO "../protos/FencingSword.proto"
 
 WorldInfo {
   basicTimeStep 24
 }
 Viewpoint {
-  orientation -0.5452915122767039 0.5521515538153298 0.6307026464652754 2.004908241114653
-  position -1.5636419235939054 -1.1539036725343492 17.451941004336646
+  orientation -0.1847664439806715 0.8495832345062299 0.49403409682396404 0.829387362113158
+  position -3.345596950297094 -1.9475130756961696 4.428007811474885
 }
 TexturedBackground {
 }
@@ -46,8 +45,8 @@ RectangleArena {
   wallHeight 3
 }
 DEF FENCER Tiago++ {
-  translation 0 0 0
-  rotation 0 0 -1 -5.307179586466759e-06
+  translation 0 0 0.1
+  rotation 0 0 -1 0
   name "ComBot"
   controller "combot_controller"
   lidarSlot [
@@ -57,6 +56,6 @@ DEF FENCER Tiago++ {
   ]
 }
 DEF OPP Tiago++ {
-  translation 3.77 -2.46776e-06 0.085
-  rotation 0 0 1 3.14159
+  translation 3 0 0.1
+  rotation 0 0 1 -3.14
 }
