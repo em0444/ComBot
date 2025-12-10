@@ -92,9 +92,9 @@ def main():
                 print("Time elapsed: ", combot.get_elapsed_time())
             # combot.move_to_position(Position(3, 1, math.pi), counter)
             # counter +=1
-            # move = strat.strategy5(combot)
-            # if move is not None:
-            #     move()
+            move = strat.strategy5(combot)
+            if move is not None:
+                move()
 
     except KeyboardInterrupt:   
         print("Controller stopped by user.")
