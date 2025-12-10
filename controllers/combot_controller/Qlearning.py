@@ -250,7 +250,7 @@ def isOutsideBounds(pos):
     return False
 
 def hasFallen(rotation):#Check rotation vectors aren't too high or low
-    if rotation[2]<-0.15 or rotation[2]>0.15 or rotation[5]<-0.15 or rotation[5]>0.15:
+    if rotation[6]<-0.15 or rotation[6]>0.15 or rotation[7]<-0.15 or rotation[7]>0.15:
         return True
     return False
 
@@ -260,26 +260,26 @@ def distance(pos1,pos2):
 def getReward(combotNode,trainerNode):
     if (isOutsideBounds(combotNode.getPosition())):
         print("Combot out of bounds")
-        return (torch.tensor([-200], device=device),True)
+        return (torch.tensor([-200], device=device),True,"Fencer went out of bounds")
     if (isOutsideBounds(trainerNode.getPosition())):
         print("Trainer out of bounds")
-        return (torch.tensor([0], device=device),True)
+        return (torch.tensor([0], device=device),True,"Opponent went out of bounds")
     if (hasFallen(combotNode.getOrientation())):
         print("Combot fallen over")
-        return (torch.tensor([-100], device=device),True)
+        return (torch.tensor([-100], device=device),True,"Fencer fell over")
     if (hasFallen(trainerNode.getOrientation())):
         print("Trainer fallen over")
-        return (torch.tensor([100], device=device),True)
+        return (torch.tensor([1000], device=device),True,"Opponent fell over")
     if distance(combotNode.getPosition(),trainerNode.getPosition())<1:
         print("Too close")
-        return (torch.tensor([-50], device=device),True)
+        return (torch.tensor([-50], device=device),True,"Fencer got to close to opponent")
 
 
     if check_hit():
         if distance(combotNode.getPosition(),trainerNode.getPosition())<1.8:
             print("Opponent body hit")
-            return (torch.tensor([100], device=device),True)
+            return (torch.tensor([100], device=device),True,"Fencer hit opponent")
     
     if (distance(combotNode.getPosition(),trainerNode.getPosition())>3):
-        return (torch.tensor([-1], device=device),False)
-    return (torch.tensor([0], device=device),False)
+        return (torch.tensor([-1], device=device),False,None)
+    return (torch.tensor([0], device=device),False,None)

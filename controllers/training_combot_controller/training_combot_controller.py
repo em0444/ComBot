@@ -14,10 +14,9 @@ timestep = int(trainer.getBasicTimeStep())
 # Main loop:
 while trainer.step(timestep) != -1:
 
-    move = strat.strategy10(trainer)
+    move = strat.strategy5(trainer)
     if move is not None:
         move()
-        print(trainer.get_enemy_position(),trainer.get_position())
     pass
 
 # Enter here exit cleanup code.

@@ -10,6 +10,7 @@ from arm import Arm
 import fencing_constants as fc
 import fencing_actions as fence
 import strategy as strat
+import csv
 
 ISUSER =False
 ISTRAINING = True
@@ -109,6 +110,10 @@ def train():
     combot: Combot = Combot()
     combotNode = combot.getSelf()
     combotEnemy = combot.getFromDef("OPP")
+    
+    model_name = "model2"
+    results = []
+    
     timestep = int(combot.getBasicTimeStep())
     arm: Arm = Arm(combot, fc.RIGHT_ARM_CONFIG)
     fence.init(arm) # Initialise fencing module with arm reference
@@ -116,7 +121,6 @@ def train():
 
     combotNode.saveState("Init1")
     combotEnemy.saveState("Init2")
-    print(combotNode.getOrientation(),'\n----------------------')
     for episode in range(0,Qlearning.num_episodes):
         combotNode.loadState("Init1")
         combotEnemy.loadState("Init2")
@@ -124,8 +128,9 @@ def train():
         state = Qlearning.getState(combot)
         stepSuccess = 0
         counter = 0
+        rewardSum = 0
+        endReason=""
         print("reset")
-        from fencing_actions import check_hit
         while stepSuccess != -1:
             action = Qlearning.select_action(state)
             Qlearning.ACTIONSPACE[action-1]()
@@ -145,11 +150,12 @@ def train():
 
             observation = Qlearning.getState(combot)
             if counter < 2500:#End episode if it takes longer than a minute
-                reward, terminated = Qlearning.getReward(combotNode,combotEnemy)
+                reward, terminated, endReason = Qlearning.getReward(combotNode,combotEnemy)
             else:
                 reward = (torch.tensor([-1000], device=Qlearning.device),True)
                 terminated = True
-
+                endReason = "Ran out of time"
+            rewardSum+=reward.item()
 
             if terminated:
                 next_state = None
@@ -177,13 +183,20 @@ def train():
                 Qlearning.episode_durations.append(counter)
                 Qlearning.plot_durations()
                 break
+        
+        results.append({'episode': episode, 'length': counter, 'end reason' : endReason , 'reward sum':rewardSum})
+
+    with open("./DQN_training_results/"+model_name+".csv", "w") as f:
+        writer = csv.DictWriter(f, fieldnames=['episode', 'length', 'end reason', 'reward sum'])
+        writer.writeheader()
+        writer.writerows(results)
 
 
     
     print('Complete')
 
     print("Saving NN")
-    torch.save(Qlearning.policy_net.state_dict(), "./DQN_states/first_model.pt")
+    torch.save(Qlearning.policy_net.state_dict(), "./DQN_states/"+model_name+".pt")
 
     Qlearning.plot_durations(show_result=True)
     Qlearning.plt.ioff()
