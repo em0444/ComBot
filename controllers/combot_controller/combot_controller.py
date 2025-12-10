@@ -124,6 +124,7 @@ def train():
     combotNode.saveState("Init1")
     combotEnemy.saveState("Init2")
     for episode in range(0,Qlearning.num_episodes):
+        combotEnemy.restartController()
         combotNode.loadState("Init1")
         combotEnemy.loadState("Init2")
         combot.reset()
@@ -142,13 +143,11 @@ def train():
             if combot.base_state=="FORWARD":
                 if previous == "BACKWARD":
                     combot.movement = None
-                    combot.localisation = None
                 combot.move_to_position(Position(3.0, 0, 0), counter)
             elif combot.base_state=="BACKWARD":
                 if previous == "FORWARD":
                     combot.movement = None
-                    combot.localisation = None
-                combot.move_to_position(Position(-0.5, 0, 0), counter)
+                combot.move_to_position(Position(-2.0, 0, 0), counter)
             counter+=1
             previous = combot.base_state
 
@@ -187,7 +186,7 @@ def train():
 
             if terminated:
                 Qlearning.episode_durations.append(counter)
-                Qlearning.plot_durations()
+                #Qlearning.plot_durations()
                 break
         
         results.append({'episode': episode, 'length': counter, 'end reason' : endReason , 'reward sum':rewardSum})
