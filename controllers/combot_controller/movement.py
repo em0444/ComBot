@@ -126,7 +126,7 @@ def begin_moving(combot, requested_delta_x, requested_delta_y, should_move_backw
             print("Begin moving forwards.")
     left_wheel_joint, right_wheel_joint = combot.getDevice("wheel_left_joint"), combot.getDevice("wheel_right_joint")
     max_wheel_speed = left_wheel_joint.getMaxVelocity()
-    speed_to_move = max_wheel_speed
+    speed_to_move = max_wheel_speed * 0.5
     if should_move_backwards: # Then move backwards
         speed_to_move = speed_to_move * -1
     combot.getDevice("wheel_left_joint").setPosition(float('inf'))
