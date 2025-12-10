@@ -68,6 +68,7 @@ def main():
     # Configure motors for velocity control (set position to infinity)
     left_wheel.setPosition(float('inf'))
     right_wheel.setPosition(float('inf'))
+    combot.start_timer()
 
     counter = 0
     try:
@@ -82,20 +83,19 @@ def main():
                 left_wheel.setVelocity(speed_left)
                 right_wheel.setVelocity(speed_right)
 
+                handle_fencing_action(key, arm)
+            else:
+                left_wheel.setVelocity(0)
+                right_wheel.setVelocity(0)
 
-            combot.move_to_position(Position(3, 1, math.pi), counter)
-            counter +=1
-            # move = strat.strategy7(combot)
-            # if move is not None:
-            #     move()
+            if fence.check_hit():
+                print("Time elapsed: ", combot.get_elapsed_time())
+            # combot.move_to_position(Position(3, 1, math.pi), counter)
+            # counter +=1
+            move = strat.strategy5(combot)
+            if move is not None:
+                move()
 
-            # # enable RGBD camera
-            # rgb_camera = wb.wb_robot_get_device("Astra rgb")
-            # wb.wb_camera_enable(rgb_camera, timestep)
-            # depth_camera = wb.wb_robot_get_device("Astra depth")
-            # wb.wb_range_finder_enable(depth_camera, timestep)
-
-            
     except KeyboardInterrupt:   
         print("Controller stopped by user.")
         pass
