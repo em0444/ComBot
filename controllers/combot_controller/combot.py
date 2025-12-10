@@ -126,8 +126,8 @@ class Combot(Supervisor):
         self.previouspreviousEnemyPosition = Position(2.0,0.0,math.pi)
         self.previousEnemyVelocityX = 0.0
 
-    def start_timer(self):
-        self.start_timestamp = self.getTime()
+    # def start_timer(self):
+    #     self.start_timestamp = self.getTime()
 
-    def get_elapsed_time(self):
-        return self.getTime() - self.start_timestamp
+    # def get_elapsed_time(self):
+    #     return self.getTime() - self.start_timestamp

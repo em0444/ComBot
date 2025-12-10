@@ -105,7 +105,7 @@ class Arm:
             # If any point is inside the body cylinder, the move is unsafe.
             if dist_from_center < SAFE_RADIUS:
                 print(f"Blade segment {alpha*100}% passes through body!")
-                print("Time elapsed: ", self.combot.get_elapsed_time()) 
+                # print("Time elapsed: ", self.combot.get_elapsed_time()) 
                 return False # UNSAFE
 
         return True # SAFE
