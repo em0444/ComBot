@@ -150,20 +150,24 @@ def train():
         rewardSum = 0
         endReason=""
         print("reset")
+        previous = "STILL"
+        combot.localisation = None
         while stepSuccess != -1:
             action = Qlearning.select_action(state)
             Qlearning.ACTIONSPACE[action-1]()
 
             if combot.base_state=="FORWARD":
-                combot.movement = None
-                combot.move_to_position(Position(combot.get_position().x+0.05, 0, 0), counter)
+                if previous == "BACKWARD":
+                    combot.movement = None
+                    combot.localisation = None
+                combot.move_to_position(Position(3.0, 0, 0), counter)
             elif combot.base_state=="BACKWARD":
-                combot.movement = None
-                combot.move_to_position(Position(combot.get_position().x-0.05, 0, 0), counter)
-            else:
-                combot.movement = None
-                combot.move_to_position(Position(combot.get_position().x, 0, 0), counter)
+                if previous == "FORWARD":
+                    combot.movement = None
+                    combot.localisation = None
+                combot.move_to_position(Position(-0.5, 0, 0), counter)
             counter+=1
+            previous = combot.base_state
 
             stepSuccess = combot.step(timestep)
 
