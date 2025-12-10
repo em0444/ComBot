@@ -34,7 +34,7 @@ def execute_fencing_action(action_name: str, angle_preset: list, ik_config: dict
         print("Error: Arm not initialized in fencing_actions!")
         return
     
-    print(f"Executing {action_name}...")
+    #print(f"Executing {action_name}...")
     
     # Track state transition
     combot.body_state = (combot.body_state, action_name)
@@ -59,7 +59,7 @@ def execute_fencing_action(action_name: str, angle_preset: list, ik_config: dict
     # Update final state
     combot.body_state = action_name
     combot.changing_body_state = False
-    print(f"{action_name} complete.")
+    #print(f"{action_name} complete.")
 
 def set_wheel_velocity(velocity: float) -> None:
     """Set both wheels to the same velocity."""
@@ -116,17 +116,17 @@ def check_hit() -> bool:
 # Movement Helpers
 def move_forward():
     """Move the robot base forward at maximum velocity."""
-    max_velocity = combot.getDevice("wheel_left_joint").getMaxVelocity()
-    set_wheel_velocity(max_velocity)
+    #max_velocity = combot.getDevice("wheel_left_joint").getMaxVelocity()
+    #set_wheel_velocity(max_velocity)
     set_base_state("FORWARD")
 
 def move_backward():
     """Move the robot base backward at maximum velocity."""
-    max_velocity = combot.getDevice("wheel_left_joint").getMaxVelocity()
-    set_wheel_velocity(-max_velocity)
+    #max_velocity = combot.getDevice("wheel_left_joint").getMaxVelocity()
+    #set_wheel_velocity(-max_velocity)
     set_base_state("BACKWARD")
 
 def move_stop():
     """Stop the robot base completely."""
-    set_wheel_velocity(0)
+    #set_wheel_velocity(0)
     set_base_state("STILL")
