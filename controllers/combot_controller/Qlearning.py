@@ -70,7 +70,10 @@ def getState(robot:Combot):
     else:
         x = x.x
 
-    xenemy = robot.get_enemy_position()
+    try:
+        xenemy = robot.get_enemy_position()
+    except Exception:
+        xenemy = None
     if xenemy is None:
         print("x position not found.")
         xenemy =robot.getFromDef("OPP").getPosition()[0]
