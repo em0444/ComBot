@@ -152,8 +152,6 @@ def train():
             counter+=1
             previous = combot.base_state
 
-            print(combot.get_position())
-
             stepSuccess = combot.step(timestep)
 
             observation = Qlearning.getState(combot)
