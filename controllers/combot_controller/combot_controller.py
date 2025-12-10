@@ -124,7 +124,7 @@ def train():
     import Qlearning
     import torch
 
-    model_name = "model3"
+    model_name = "model4"
 
     print(Qlearning.policy_net)
     combot: Combot = Combot()
@@ -204,7 +204,7 @@ def train():
 
             if terminated:
                 Qlearning.episode_durations.append(counter)
-                Qlearning.plot_durations()
+                # Qlearning.plot_durations()
                 break
         
         results.append({'episode': episode, 'length': counter, 'end reason' : endReason , 'reward sum':rewardSum})
