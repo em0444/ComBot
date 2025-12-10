@@ -241,11 +241,11 @@ for i_episode in range(num_episodes):
 '''
 
 def isOutsideBounds(pos):
-    if pos[1]<-0.2 or pos[1]>0.2:
+    if pos[1]<-0.35 or pos[1]>0.35:
         return True
     if pos[0]<-2.5 or pos[0]>4.2:
         return True
-    if pos[2]<-0.1 or pos[2]>0.2:
+    if pos[2]<-0.1 or pos[2]>10.2:
         return True
     return False
 
@@ -282,6 +282,4 @@ def getReward(combotNode,trainerNode):
     
     if (distance(combotNode.getPosition(),trainerNode.getPosition())>3):
         return (torch.tensor([-0.5], device=device),False,None)
-    if (distance(combotNode.getPosition(),trainerNode.getPosition())>2 and distance(combotNode.getPosition(),trainerNode.getPosition())<1.5):
-        return (torch.tensor([0.2], device=device),False,None)
     return (torch.tensor([0], device=device),False,None)

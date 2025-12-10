@@ -106,12 +106,14 @@ def main():
 def train():
     import Qlearning
     import torch
+
+    model_name = "model3"
+
     print(Qlearning.policy_net)
     combot: Combot = Combot()
     combotNode = combot.getSelf()
     combotEnemy = combot.getFromDef("OPP")
     
-    model_name = "model2"
     results = []
     
     timestep = int(combot.getBasicTimeStep())
