@@ -12,8 +12,9 @@ import fencing_actions as fence
 import strategy as strat
 import csv
 
+ISBOT = True
 ISUSER =False
-ISTRAINING = True
+ISTRAINING = False
 
 # Movement Keyboard codes (Webots specific)
 KEY_UP = 315
@@ -107,11 +108,11 @@ def train():
     import Qlearning
     import torch
 
-    model_name = "eval0"
+    model_name = "temp"
 
-    Qlearning.target_net.load_state_dict(torch.load("./DQN_states/model3c.pt", weights_only=True))
+    Qlearning.target_net.load_state_dict(torch.load("./DQN_states/model3f.pt", weights_only=True))
     Qlearning.target_net.eval()
-    Qlearning.policy_net.load_state_dict(torch.load("./DQN_states/model3c.pt", weights_only=True))
+    Qlearning.policy_net.load_state_dict(torch.load("./DQN_states/model3f.pt", weights_only=True))
     Qlearning.policy_net.eval()
 
 
@@ -204,15 +205,53 @@ def train():
     
     print('Complete')
 
-    print("Saving NN")
-    torch.save(Qlearning.target_net.state_dict(), "./DQN_states/"+model_name+".pt")
+    #print("Saving NN")
+    #torch.save(Qlearning.target_net.state_dict(), "./DQN_states/"+model_name+".pt")
 
     Qlearning.plot_durations(show_result=True)
     Qlearning.plt.ioff()
     Qlearning.plt.show()
+
+
+
+
+def botMain():
+    import Qlearning
+    import torch
+    Qlearning.target_net.load_state_dict(torch.load("./DQN_states/model3f.pt", weights_only=True))
+    Qlearning.target_net.eval()
+    Qlearning.policy_net.load_state_dict(torch.load("./DQN_states/model3f.pt", weights_only=True))
+    Qlearning.policy_net.eval()
+
+    combot: Combot = Combot()
+    timestep = int(combot.getBasicTimeStep())
+    arm: Arm = Arm(combot, fc.RIGHT_ARM_CONFIG)
+    fence.init(arm) # Initialise fencing module with arm reference
+    stepSuccess = 0
+    counter = 0
+    while stepSuccess != -1:
+        state = Qlearning.getState(combot)
+        action = Qlearning.select_action(state)
+        Qlearning.ACTIONSPACE[action-1]()#Preform actions
+
+        if combot.base_state=="FORWARD":
+            if previous == "BACKWARD":
+                combot.movement = None
+            combot.move_to_position(Position(3.0, 0, 0), counter)
+        elif combot.base_state=="BACKWARD":
+            if previous == "FORWARD":
+                combot.movement = None
+            combot.move_to_position(Position(-2.0, 0, 0), counter)
+        counter +=1
+        previous = combot.base_state
+
+        stepSuccess = combot.step(timestep)
+
 
 if __name__ == "__main__":
     if ISUSER:
         main()
     elif ISTRAINING:
         train()
+    elif ISBOT:
+        botMain()
