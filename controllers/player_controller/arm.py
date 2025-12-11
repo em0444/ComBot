@@ -54,7 +54,7 @@ class Arm:
 
     def _check_urdf(self) -> str:
         """Check if URDF file exists; generate if missing."""
-        filename = "combot_urdf.urdf"
+        filename = "player_urdf.urdf"
         if not os.path.exists(filename):
             print(f"URDF file not found. Generating {filename}...")
             with open(filename, "w") as file:
