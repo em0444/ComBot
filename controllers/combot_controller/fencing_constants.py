@@ -2,6 +2,9 @@
 fencing_constants.py
 Stores joint names, configuration, and PRESET ANGLES.
 """
+ISBOT = True
+ISUSER = False
+ISTRAINING = False
 
 # Configuration for the right arm (The Fencing Arm)
 RIGHT_ARM_CONFIG = {
