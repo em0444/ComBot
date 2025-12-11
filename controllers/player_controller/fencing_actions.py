@@ -50,12 +50,11 @@ def execute_fencing_action(action_name: str, angle_preset: list, ik_config: dict
     else:
         target_position = ik_config["position"]
     
-    if fc.ISUSER:
-        arm.move_to_target(
-        target_position=target_position,
-        orientation_mode=ik_config["mode"],
-        target_orientation=ik_config["vector"]
-        )
+    arm.move_to_target(
+    target_position=target_position,
+    orientation_mode=ik_config["mode"],
+    target_orientation=ik_config["vector"]
+    )
     
     # Update final state
     combot.body_state = action_name
