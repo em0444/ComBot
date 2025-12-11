@@ -107,11 +107,11 @@ def train():
     import Qlearning
     import torch
 
-    model_name = "model3g"
+    model_name = "eval0"
 
-    Qlearning.target_net.load_state_dict(torch.load("./DQN_states/model3f.pt", weights_only=True))
+    Qlearning.target_net.load_state_dict(torch.load("./DQN_states/model3c.pt", weights_only=True))
     Qlearning.target_net.eval()
-    Qlearning.policy_net.load_state_dict(torch.load("./DQN_states/model3f.pt", weights_only=True))
+    Qlearning.policy_net.load_state_dict(torch.load("./DQN_states/model3c.pt", weights_only=True))
     Qlearning.policy_net.eval()
 
 
