@@ -107,9 +107,14 @@ def train():
     import Qlearning
     import torch
 
-    model_name = "model3"
+    model_name = "model3g"
 
-    print(Qlearning.policy_net)
+    Qlearning.target_net.load_state_dict(torch.load("./DQN_states/model3f.pt", weights_only=True))
+    Qlearning.target_net.eval()
+    Qlearning.policy_net.load_state_dict(torch.load("./DQN_states/model3f.pt", weights_only=True))
+    Qlearning.policy_net.eval()
+
+
     combot: Combot = Combot()
     combotNode = combot.getSelf()
     combotEnemy = combot.getFromDef("OPP")
@@ -188,7 +193,7 @@ def train():
                 Qlearning.episode_durations.append(counter)
                 #Qlearning.plot_durations()
                 break
-        
+        print(episode)
         results.append({'episode': episode, 'length': counter, 'end reason' : endReason , 'reward sum':rewardSum})
 
     with open("./DQN_training_results/"+model_name+".csv", "w") as f:
@@ -201,7 +206,7 @@ def train():
     print('Complete')
 
     print("Saving NN")
-    torch.save(Qlearning.policy_net.state_dict(), "./DQN_states/"+model_name+".pt")
+    torch.save(Qlearning.target_net.state_dict(), "./DQN_states/"+model_name+".pt")
 
     Qlearning.plot_durations(show_result=True)
     Qlearning.plt.ioff()
