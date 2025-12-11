@@ -72,7 +72,7 @@ def main():
             key = wb.wb_keyboard_get_key()
 
             if key > 0:
-                max_speed = left_wheel.getVelocity()
+                max_speed = left_wheel.getMaxVelocity()
                 speed_left, speed_right = handle_movement_speed(key, max_speed)
 
                 left_wheel.setVelocity(speed_left)
