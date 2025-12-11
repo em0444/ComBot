@@ -91,11 +91,11 @@ class Arm:
         """Calculate the target position on opponent's body for sword strikes."""
         
         # Get opponent node reference
-        opponent_node = self.combot.getFromDef("OPP")
+        opponent_node = self.combot.getFromDef("FENCER")
 
         if opponent_node is None:
             # Try finding it one last time (in case it spawned late)
-            opponent_node = self.combot.getFromDef("OPP")
+            opponent_node = self.combot.getFromDef("FENCER")
             if opponent_node is None:
                 print("Error: Could not find opponent!")
                 return [0, 0, 0]

@@ -95,7 +95,7 @@ class Combot(Supervisor):
         self.previousEnemyVelocityX = self.previousEnemyPosition.x-self.previouspreviousEnemyPosition.x
         self.enemyPosition = self.localisation.get_enemy_position()
         if self.enemyPosition is None:
-            self.enemyPosition = Position((self.getFromDef("OPP").getPosition()[0]),0.0,-math.pi)
+            self.enemyPosition = Position((self.getFromDef("FENCER").getPosition()[0]),0.0,-math.pi)
             #print("Lidar not loaded")
         return self.enemyPosition
     
