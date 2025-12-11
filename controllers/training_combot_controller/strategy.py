@@ -3,7 +3,7 @@ import random
 from threading import Thread
 from math import sqrt
 
-HITRANGE = 1.0
+HITRANGE = 1.5
 ALLBODYACTIONS =  [lunge, parry_high,parry_low,en_garde]
 STRATEGY5ACTIONDELAY = 2000
 
@@ -48,7 +48,7 @@ def strategy2(robot):
 
 def strategy3(robot):
     if not robot.changing_body_state:
-        if distance(robot.currentPosition,robot.enemyPosition) < HITRANGE and robot.body_state != "LUNGE":
+        if distance(robot.getFromDef("OPP").getPosition(),robot.getFromDef("FENCER").getPosition()) < HITRANGE and robot.body_state != "LUNGE":
             return lunge
         if robot.body_state != "EN_GARDE":
             return en_garde
@@ -56,7 +56,7 @@ def strategy3(robot):
 
 def strategy4(robot):
     if not robot.changing_body_state:
-        if distance(robot.enemySwordPosition,robot.enemyPosition) > distance(robot.enemySwordPosition,robot.currentPosition):
+        if distance(robot.getFromDef("OPP").getPosition(),robot.getFromDef("FENCER").getPosition()) < HITRANGE:
             if robot.body_state == "PARRY_HIGH":
                 return lunge
             return parry_high
@@ -114,7 +114,7 @@ strategy10 = templateStrategyCycle([mergeActions(move_forward,lunge),move_stop,m
 
 def strategy11(robot):
     if not robot.changing_body_state:
-        if distance(robot.currentPosition,robot.enemyPosition) < HITRANGE and robot.body_state != "LUNGE":
+        if distance(robot.getFromDef("OPP").getPosition(),robot.getFromDef("FENCER").getPosition()) < HITRANGE and robot.body_state != "LUNGE":
             return mergeActions(lunge,move_forward)
         if robot.body_state != "EN_GARDE":
             return en_garde

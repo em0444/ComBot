@@ -1,0 +1,11 @@
+episode,length,end reason,reward sum
+0,196,Fencer hit opponent,198.5
+1,191,Fencer went out of bounds,-203.0
+2,132,Fencer went out of bounds,-211.5
+3,259,Fencer went out of bounds,-245.0
+4,165,Fencer went out of bounds,-238.0
+5,142,Fencer went out of bounds,-217.5
+6,33,Opponent went out of bounds,-1.0
+7,191,Fencer hit opponent,198.5
+8,111,Fencer went out of bounds,-201.5
+9,122,Fencer went out of bounds,-202.0
