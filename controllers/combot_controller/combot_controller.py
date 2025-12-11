@@ -9,100 +9,7 @@ from shared_dataclasses import Position
 from arm import Arm
 import fencing_constants as fc
 import fencing_actions as fence
-import strategy as strat
 import csv
-
-ISBOT = True
-ISUSER =False
-ISTRAINING = False
-
-# Movement Keyboard codes (Webots specific)
-KEY_UP = 315
-KEY_DOWN = 317
-KEY_RIGHT = 316
-KEY_LEFT = 314
-
-# Fencing Action Keys
-KEY_LUNGE = 32      # Spacebar
-KEY_PARRY_HIGH = 81 # Q
-KEY_PARRY_LOW = 90  # Z
-KEY_EN_GARDE = 82   # R
-
-# Shorthand alias for the Webots API module
-wb = c_webots_api.wb
-
-def handle_movement_speed(key, max_speed):
-    speed_left = 0.0
-    speed_right = 0.0
-
-    if key == KEY_UP: 
-        speed_left, speed_right = max_speed, max_speed
-    elif key == KEY_DOWN: 
-        speed_left, speed_right = -max_speed, -max_speed
-    elif key == KEY_RIGHT:  
-        speed_left, speed_right = max_speed, -max_speed
-    elif key == KEY_LEFT:  
-        speed_left, speed_right = -max_speed, max_speed     
-    
-    return speed_left, speed_right
-            
-def handle_fencing_action(key: int, arm: Arm):
-    # Map keys to their corresponding fencing action functions
-    action_map: Dict[int, Callable] = {
-        KEY_LUNGE:      fence.lunge,
-        KEY_PARRY_HIGH: fence.parry_high,
-        KEY_PARRY_LOW:  fence.parry_low,
-        KEY_EN_GARDE:   fence.en_garde
-    }
-    # Execute if key exists in map
-    if key in action_map:
-        action_map[key]()
-
-def main():
-    combot: Combot = Combot()
-    timestep = int(combot.getBasicTimeStep())
-    arm: Arm = Arm(combot, fc.RIGHT_ARM_CONFIG)
-    fence.init(arm) # Initialise fencing module with arm reference
-    
-    wb.wb_keyboard_enable(timestep)
-
-    # Get references to the wheel motors
-    left_wheel = combot.getDevice("wheel_left_joint")
-    right_wheel = combot.getDevice("wheel_right_joint")
-
-    counter = 0
-    try:
-        while combot.step(timestep) != -1:
-
-            key = wb.wb_keyboard_get_key()
-
-            if key > 0:
-                max_speed = left_wheel.getMaxVelocity()
-                speed_left, speed_right = handle_movement_speed(key, max_speed)
-
-                left_wheel.setVelocity(speed_left)
-                right_wheel.setVelocity(speed_right)
-
-                handle_fencing_action(key, arm)
-
-            if (counter//30)%2==0:
-                combot.movement = None
-                combot.move_to_position(Position(combot.get_position().x+0.005, 0, 0), counter)
-                print(combot.position.x)
-            else:
-                combot.movement = None
-                combot.move_to_position(combot.position, counter)
-                print("aaaa")
-            counter +=1
-            # move = strat.strategy7(combot)
-            # if move is not None:
-            #     move()
-
-
-            
-    except KeyboardInterrupt:   
-        print("Controller stopped by user.")
-        pass
 
 def train():
     import Qlearning
@@ -212,9 +119,6 @@ def train():
     Qlearning.plt.ioff()
     Qlearning.plt.show()
 
-
-
-
 def botMain():
     import Qlearning
     import torch
@@ -247,11 +151,8 @@ def botMain():
 
         stepSuccess = combot.step(timestep)
 
-
 if __name__ == "__main__":
-    if ISUSER:
-        main()
-    elif ISTRAINING:
+    if fc.ISTRAINING:
         train()
-    elif ISBOT:
+    elif fc.ISBOT:
         botMain()

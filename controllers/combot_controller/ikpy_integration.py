@@ -36,17 +36,15 @@ def create_right_arm_chain(urdf_filename) -> Chain:
 
 def activate_ik_chain(right_arm_chain: Chain):
     """Configure which links in the IK chain are active for inverse kinematics."""
-    print("onfiguring IK chain - marking controllable joints...")
+    print("Configuring IK chain - marking controllable joints...")
     
     # Iterate through all links in the chain
     for link_id in range(len(right_arm_chain.links)):
         # Get the link object at this position in the chain
         link = right_arm_chain.links[link_id]
-        print(f"  Link {link_id}: {link.name}")
         
         # Check if this link should be active for IK
         if link.name not in fc.FULL_BODY_PART_NAMES or  link.name =="torso_lift_joint":
-            print(f"    -> Disabling {link.name} (not controllable)")
             right_arm_chain.active_links_mask[link_id] = False
         
     # Log which links are active for debugging/verification
@@ -56,6 +54,5 @@ def activate_ik_chain(right_arm_chain: Chain):
         if right_arm_chain.active_links_mask[i]
     ]
     print(f"Active links for IK: {active_links}")
-    print(f"Total active joints: {sum(right_arm_chain.active_links_mask)}")
     
     return right_arm_chain

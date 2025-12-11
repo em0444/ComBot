@@ -154,7 +154,6 @@ class Arm:
             # Only set position for controllable joints
             if link_name in self.motors:
                 self.combot.getDevice(link_name).setPosition(angle)
-                print(f"Setting {link_name} to {angle:.4f} rad")
 
         print("Moved arm to target position:", target_position)
 
