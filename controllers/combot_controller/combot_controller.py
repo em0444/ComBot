@@ -129,6 +129,7 @@ def train():
     combotNode.saveState("Init1")
     combotEnemy.saveState("Init2")
     for episode in range(0,Qlearning.num_episodes):
+        ''' At the start of each episode, reset the robots positions and controllers and set data collection variables to defaults'''
         combotEnemy.restartController()
         combotNode.loadState("Init1")
         combotEnemy.loadState("Init2")
@@ -143,7 +144,7 @@ def train():
         combot.localisation = None
         while stepSuccess != -1:
             action = Qlearning.select_action(state)
-            Qlearning.ACTIONSPACE[action-1]()
+            Qlearning.ACTIONSPACE[action-1]()#Preform actions
 
             if combot.base_state=="FORWARD":
                 if previous == "BACKWARD":
@@ -182,7 +183,6 @@ def train():
             Qlearning.optimize_model()
 
             # Soft update of the target network's weights
-            # θ′ ← τ θ + (1 −τ )θ′
             target_net_state_dict = Qlearning.target_net.state_dict()
             policy_net_state_dict = Qlearning.policy_net.state_dict()
             for key in policy_net_state_dict:
@@ -191,7 +191,6 @@ def train():
 
             if terminated:
                 Qlearning.episode_durations.append(counter)
-                #Qlearning.plot_durations()
                 break
         print(episode)
         results.append({'episode': episode, 'length': counter, 'end reason' : endReason , 'reward sum':rewardSum})
