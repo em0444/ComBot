@@ -66,6 +66,10 @@ def main():
     left_wheel = combot.getDevice("wheel_left_joint")
     right_wheel = combot.getDevice("wheel_right_joint")
 
+    # Configure motors for velocity control (set position to infinity)
+    left_wheel.setPosition(float('inf'))
+    right_wheel.setPosition(float('inf'))
+
     try:
         while combot.step(timestep) != -1:
 
@@ -79,7 +83,10 @@ def main():
                 right_wheel.setVelocity(speed_right)
 
                 handle_fencing_action(key, arm)
-
+            else:
+                left_wheel.setVelocity(0)
+                right_wheel.setVelocity(0)
+                
             fence.check_hit()
             
     except KeyboardInterrupt:   
