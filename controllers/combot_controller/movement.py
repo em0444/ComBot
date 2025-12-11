@@ -30,6 +30,13 @@ class Movement:
         self.required_distance: float = math.sqrt(self.requested_delta_x ** 2 + self.requested_delta_y ** 2)
         self.last_turning_direction = None
         self.moving_backwards = False
+        self.is_done = False
+
+    def is_moving_backwards(self):
+        return self.moving_backwards
+
+    def is_done(self):
+        return self.is_done
 
     def move_to_position(self, counter) -> bool:
         global combot, target_position
@@ -60,6 +67,7 @@ class Movement:
 
             self.required_turning_direction: Optional[TurnDirection] = None
             self.finished = False
+            return False
 
         # Only do these checks every 30 timesteps (1 timestep = 1 counter)
         if counter % 10 == 0 and not self.finished:
@@ -115,7 +123,9 @@ class Movement:
             if not self.already_performed_final_rotation: # The caller is continually calling us despite already being done, don't turn again!
                 self.already_performed_final_rotation = True
                 rotate_to_heading(self.target_pos.heading_in_radians, self.moving_backwards) # Once all that's done, rotate to the target heading
+                self.is_done = True
             return True  # And tell the caller the manouvre is complete
+        return False
 
 def begin_moving(combot, requested_delta_x, requested_delta_y, should_move_backwards):
     if should_move_backwards:

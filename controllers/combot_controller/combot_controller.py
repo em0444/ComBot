@@ -11,6 +11,9 @@ import fencing_constants as fc
 import fencing_actions as fence
 import csv
 
+# Shorthand alias for the Webots API module
+wb = c_webots_api.wb
+
 def train():
     import Qlearning
     import torch
