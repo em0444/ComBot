@@ -2,9 +2,10 @@
 fencing_constants.py
 Stores joint names, configuration, and PRESET ANGLES.
 """
-ISBOT = True
-ISUSER = False
-ISTRAINING = False
+# Determines whether to use reinforcement learning without arm kinematics or keyboard inverse kinematics
+ISBOT = True # Automous with neutral network usage
+ISUSER = False # Keyboard controlled movement and arm kinematics
+ISTRAINING = False # Reinforcement training
 
 # Configuration for the right arm (The Fencing Arm)
 RIGHT_ARM_CONFIG = {
