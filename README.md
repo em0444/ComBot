@@ -1,3 +1,21 @@
+ComBot; an intelligent non-tiring fencing robot
+
+# Custom Implementation
+We developed the high-level control intelligence, safety systems, and fencing-specific algorithms from scratch. The core modules implemented by our team include:
+
+- Kinematic Control Pipeline (arm.py, ikpy_integration.py): Designed a hybrid control architecture that combines coarse preset poses with fine-grained Inverse Kinematics targeting.
+- Fencing Intelligence (fencing_actions.py, arm.py): Developed the Dynamic Target Acquisition logic (get_opponent_target), which calculates real-time coordinate transformations to track opponent vulnerabilities (e.g., chest, shoulder) regardless of their orientation.
+[TODO: INSERT OTHERS]
+
+# External Libraries & Pre-Programmed Assets
+To ensure robust physics and mathematical accuracy, we leveraged industry-standard tools for low-level operations:
+
+- IKPy (Inverse Kinematics Python): We utilised the ikpy library as the mathematical engine for solving the 7-DOF kinematic chain. While we designed the targets and safety constraints, the iterative inverse kinematics solver itself is provided by this package.
+- Webots Controller API: Used for the low-level interface with the simulation.
+- TIAGo++ Robot Model: The visual geometries and physical properties (URDF/PROTO files) are based on the standard PAL Robotics TIAGo++ platform provided by Webots.
+- NumPy: Used for efficient matrix operations and coordinate frame transformations.
+[TODO: INSERT OTHERS]
+
 This project uses `uv` for dependency management.
 
 ### 1. Prerequisites
