@@ -1,0 +1,17 @@
+time,type,details
+0.624,ACTION,en_garde
+0.624,KINEMATIC_ERROR,Safety Violated
+2.016,ACTION,lunge
+2.016,KINEMATIC_ERROR,Safety Violated
+4.008,ACTION,parry_low
+4.008,KINEMATIC_ERROR,Safety Violated
+6.0,ACTION,lunge
+6.0,KINEMATIC_ERROR,Safety Violated
+8.016,ACTION,en_garde
+8.016,KINEMATIC_ERROR,Safety Violated
+10.008000000000001,ACTION,en_garde
+10.008000000000001,KINEMATIC_ERROR,Safety Violated
+12.0,ACTION,parry_low
+12.0,KINEMATIC_ERROR,Safety Violated
+14.016,ACTION,lunge
+14.472,SIMULATOR_FAILURE,Exploded

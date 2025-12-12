@@ -1,5 +1,8 @@
 # Arm controller wrapper — uses existing fencing_actions and ikpy_integration modules
 import os
+import csv
+import math
+import time
 from typing import List, Dict, TYPE_CHECKING
 
 import matplotlib
@@ -106,7 +109,6 @@ class Arm:
             # If any point is inside the body cylinder, the move is unsafe.
             if dist_from_center < SAFE_RADIUS:
                 print(f"Blade segment {alpha*100}% passes through body!")
-                # print("Time elapsed: ", self.combot.get_elapsed_time()) 
                 return False # UNSAFE
 
         return True # SAFE
@@ -194,7 +196,7 @@ class Arm:
         # Build angle list matching chain structure
         current_angles = [0] + [angle for angle in arm_angles.values()] + [0]*4
         current_angles = current_angles[:len(self.right_arm_chain.links)]
-        print("Initial Chain Position:", current_angles)
+        # print("Initial Chain Position:", current_angles)
         
         robot_node = self.combot.getSelf()
         robot_position = np.array(robot_node.getPosition())
@@ -220,7 +222,7 @@ class Arm:
             print("Kinematics cancelled...")
             return
         
-        print("IK Chain Results:", ik_results)
+        # print("IK Chain Results:", ik_results)
 
         # Apply IK solution to controllable joints
         for i, angle in enumerate(ik_results):
@@ -294,3 +296,75 @@ class Arm:
     def create_right_arm_chain(self):
         """Create IK chain for the right arm from URDF file."""
         return ik.create_right_arm_chain(self.urdf_file)
+    
+    def run_robustness_test(self, duration_seconds: float = 180.0):
+        """Runs the robot using specified strategy for a fixed duration to test stability. """
+        # Import inside function to avoid circular dependency loop with fencing_actions
+        import strategy as strat
+        
+        print(f"--- STARTING STRATEGY ROBUSTNESS TEST ({duration_seconds}s) ---")
+        
+        start_time = self.combot.getTime()
+        events = []
+        
+        # Wrap safety check to log failures
+        original_safety_check = self.is_solution_safe
+        
+        def test_safety_wrapper(joint_configuration):
+            is_safe = original_safety_check(joint_configuration)
+            if not is_safe:
+                t = self.combot.getTime()
+                print(f"[{t:.2f}s] KINEMATIC ERROR: Unsafe solution intercepted.")
+                events.append({"time": t, "type": "KINEMATIC_ERROR", "details": "Safety Violated"})
+            return is_safe
+            
+        self.is_solution_safe = test_safety_wrapper
+
+        try:
+            while self.combot.step(self.timestep) != -1:
+                current_time = self.combot.getTime()
+                elapsed = current_time - start_time
+                
+                # Check time limit given
+                if elapsed >= duration_seconds:
+                    print("Test duration complete.")
+                    break
+                
+                # Check for simulator failure
+                pos = self.combot.getSelf().getPosition()
+                orientation = self.combot.getSelf().getOrientation()
+                # Checks if robot has gone out of bounds or fallen on the floor
+                if (math.isnan(pos[0]) or math.isnan(pos[1]) or 
+                    abs(pos[0]) > 10.0 or abs(pos[1]) > 10.0) or orientation[8] < 0.5:
+                    print(f"[{current_time:.2f}s] SIMULATOR FAILURE: Robot exploded or fell over.")
+                    events.append({"time": current_time, "type": "SIMULATOR_FAILURE", "details":"Exploded"})
+                    break
+            
+                # Execute strategy
+                move = strat.strategy5(self.combot)
+                
+                if move is not None:
+                    # Log the action name if available
+                    action_name = getattr(move, "__name__", "Unknown Move")
+                    print(f"[{current_time:.2f}s] ACTION TRIGGERED: {action_name}")
+                    events.append({"time": current_time, "type": "ACTION", "details": action_name})
+                    move()
+
+        finally:
+            # Restore original method
+            self.is_solution_safe = original_safety_check
+
+            log_dir = "arm_kinematic_tests"
+            os.makedirs(log_dir, exist_ok=True)
+            
+            # Save Log with timestamp to avoid overwriting
+            timestamp_str = time.strftime("%Y%m%d_%H%M%S")
+            filename = os.path.join(log_dir, f"robustness_log_{timestamp_str}.csv")
+            try:
+                with open(filename, "w", newline='') as f:
+                    writer = csv.DictWriter(f, fieldnames=["time", "type", "details"])
+                    writer.writeheader()
+                    writer.writerows(events)
+                print(f"Robustness log saved to {filename}")
+            except Exception as e:
+                print(f"Failed to save log: {e}")
