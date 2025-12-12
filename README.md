@@ -5,7 +5,10 @@ We developed the high-level control intelligence, safety systems, and fencing-sp
 
 - Kinematic Control Pipeline (arm.py, ikpy_integration.py): Designed a hybrid control architecture that combines coarse preset poses with fine-grained Inverse Kinematics targeting.
 - Fencing Intelligence (fencing_actions.py, arm.py): Developed the Dynamic Target Acquisition logic (get_opponent_target), which calculates real-time coordinate transformations to track opponent vulnerabilities (e.g., chest, shoulder) regardless of their orientation.
-[TODO: INSERT OTHERS]
+- Localisation: Coded a particle filter algorithm from scratch using only webots components such as wheel odometry, lidar sensors and distance sensors.
+- Enemy detector: Designed a simple enemy detection algorithm that gives enemy coordinates using localisation code and Webots distance sensors.
+- Unintelligent strategy: Implemented several basic strategies that obtain data from either sensors or global world data depending on the controller and uses basic if trees to determine a action.
+- Intelligent strategy: Trained a Deep Q network that takes in data from localisation and enemy detection and uses it to find the most optimal strategy.
 
 # External Libraries & Pre-Programmed Assets
 To ensure robust physics and mathematical accuracy, we leveraged industry-standard tools for low-level operations:
@@ -14,7 +17,8 @@ To ensure robust physics and mathematical accuracy, we leveraged industry-standa
 - Webots Controller API: Used for the low-level interface with the simulation.
 - TIAGo++ Robot Model: The visual geometries and physical properties (URDF/PROTO files) are based on the standard PAL Robotics TIAGo++ platform provided by Webots.
 - NumPy: Used for efficient matrix operations and coordinate frame transformations.
-[TODO: INSERT OTHERS]
+- Torch: Used to build neural networks, in this project a basic Deep Q network.
+- MatPlotLib: Displayed debug data and created graphs for model evaluation.
 
 This project uses `uv` for dependency management.
 
