@@ -10,8 +10,8 @@ WorldInfo {
   basicTimeStep 24
 }
 Viewpoint {
-  orientation -0.1847664439806715 0.8495832345062299 0.49403409682396404 0.829387362113158
-  position -3.345596950297094 -1.9475130756961696 4.428007811474885
+  orientation -0.18080205148619236 0.846631722421847 0.5005250690698726 0.806575086948831
+  position -6.45393189548653 -3.3666798123101884 7.399619705057228
 }
 TexturedBackground {
 }
@@ -49,7 +49,7 @@ DEF FENCER Tiago++ {
   rotation 0 0 -1 0
   name "ComBot"
   controller "combot_controller"
-    lidarSlot [
+  lidarSlot [
     VelodyneVLP-16 {
       translation -0.41 0 0.24
     }
