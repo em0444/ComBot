@@ -95,7 +95,7 @@ class Combot(Supervisor):
         self.previousEnemyVelocityX = self.previousEnemyPosition.x-self.previouspreviousEnemyPosition.x
         self.enemyPosition = self.localisation.get_enemy_position()
         if self.enemyPosition is None:
-            self.enemyPosition = Position((self.getFromDef("FENCER").getPosition()[0]),0.0,-math.pi)
+            self.enemyPosition = Position((self.getFromDef("OPP").getPosition()[0]),0.0,-math.pi)
             #print("Lidar not loaded")
         return self.enemyPosition
     
@@ -126,6 +126,8 @@ class Combot(Supervisor):
         self.previouspreviousEnemyPosition = Position(2.0,0.0,math.pi)
         self.previousEnemyVelocityX = 0.0
 
-    # def sword_is_contacting(self):
-    #     supervisor_contact_points = self.supervisor_obj.getFromDef("FENCING_SWORD_SOLID").getContactPoints()
-    #     return len(supervisor_contact_points) > 0 # If you want this to be less sensitive in future, set this = 1
+    def start_timer(self):
+        self.start_timestamp = self.getTime()
+
+    def get_elapsed_time(self):
+        return self.getTime() - self.start_timestamp

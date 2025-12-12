@@ -5,6 +5,7 @@ from typing import List, Dict, TYPE_CHECKING
 import matplotlib
 import matplotlib.pyplot
 from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
 
 from combot import Combot
 import fencing_constants as fc
@@ -74,10 +75,42 @@ class Arm:
             if "right" in sensor_key.lower():
                 value = sensor.getValue()
                 angles[sensor_key] = value
-            
-        print("Right Arm Angles:", angles)
+
         return angles
 
+    # Kinematics safety checks
+    def is_solution_safe(self, joint_configuration) -> bool:
+        """
+        Checks if the intelligent solution places any part of the sword (from Wrist to Tip) inside the robot body
+        """
+        # Get the positions of all links for this solution
+        frames = self.right_arm_chain.forward_kinematics(joint_configuration, full_kinematics=True)
+        
+        # Extract Wrist and Tip positions
+        wrist_position = frames[6][:3, 3] # Link 7: arm_right_7_joint
+        tip_position   = frames[-1][:3, 3] # Last joint: sword tip offset
+
+        SAFE_RADIUS = 0.28  # 28cm radius (Body is ~25cm, adding buffer)
+        
+        # Check 5 points along the blade (0%, 25%, 50%, 75%, 100%)
+        for i in range(5):
+            alpha = i / 4.0  # 0.0, 0.25, 0.5, 0.75, 1.0
+            
+            # Linear Interpolation between Wrist and Tip
+            check_x = wrist_position[0] * (1 - alpha) + tip_position[0] * alpha
+            check_y = wrist_position[1] * (1 - alpha) + tip_position[1] * alpha
+            
+            # Cylinder Check (Ignore Z height, just check horizontal radius)
+            dist_from_center = (check_x**2 + check_y**2)**0.5
+
+            # If any point is inside the body cylinder, the move is unsafe.
+            if dist_from_center < SAFE_RADIUS:
+                print(f"Blade segment {alpha*100}% passes through body!")
+                # print("Time elapsed: ", self.combot.get_elapsed_time()) 
+                return False # UNSAFE
+
+        return True # SAFE
+    
     # Direct arm control (delegates to fencing_actions)
     def move_to_pose(self, positions: List[float]) -> None:
         """Move arm joints to specified positions."""
@@ -86,7 +119,7 @@ class Arm:
             motor.setVelocity(motor.getMaxVelocity())
             motor.setPosition(position)
 
-    # Opponent targeting
+    # Targeting for sword
     def get_opponent_target(self) -> List[float]:
         """Calculate the target position on opponent's body for sword strikes."""
         
@@ -101,10 +134,10 @@ class Arm:
                 return [0, 0, 0]
         
         opponent_position = opponent_node.getPosition()
-        opponent_rotation = opponent_node.getOrientation() 
+        opponent_rotation = opponent_node.getOrientation()
         
         # Calibrated offset that accurately targets opponent's torso for sword strikes
-        opponent_offset_local = [0.9, -0.4, -0.3]
+        opponent_offset_local = [0.15, -0.1, 0.35]
         
         # Extract rotation matrix rows (Webots returns flattened 3x3 matrix)
         r0 = opponent_rotation[0:3] # Row 0 (X axis)
@@ -125,6 +158,32 @@ class Arm:
 
         return opponent_target_position
     
+    def get_sword_target_position(self, fence_position: List[float]) -> List[float]:
+        """Calculate the target position relative to current robot for fencing actions excluding lunge."""
+        
+        robot_node = self.combot.getSelf()
+        robot_position = robot_node.getPosition()
+        robot_rotation = robot_node.getOrientation() # 3x3 Matrix
+        
+        # Extract rotation matrix rows
+        r0 = robot_rotation[0:3] # Row 0 (X axis)
+        r1 = robot_rotation[3:6] # Row 1 (Y axis)
+        r2 = robot_rotation[6:9] # Row 2 (Z axis)
+        
+        # Apply rotation to local offset: Global_Offset = Rotation_Matrix * Local_Offset
+        dx = r0[0]*fence_position[0] + r0[1]*fence_position[1] + r0[2]*fence_position[2]
+        dy = r1[0]*fence_position[0] + r1[1]*fence_position[1] + r1[2]*fence_position[2]
+        dz = r2[0]*fence_position[0] + r2[1]*fence_position[1] + r2[2]*fence_position[2]
+        
+        # Add Rotated Offset to initial position
+        sword_target_position = [
+            robot_position[0] + dx,
+            robot_position[1] + dy,
+            robot_position[2] + dz
+        ]
+        
+        return sword_target_position
+
     # Inverse Kinematics (IK) Movement
     def move_to_target(self, target_position: List[float],
                         orientation_mode: str = "Z", 
@@ -136,16 +195,30 @@ class Arm:
         current_angles = [0] + [angle for angle in arm_angles.values()] + [0]*4
         current_angles = current_angles[:len(self.right_arm_chain.links)]
         print("Initial Chain Position:", current_angles)
+        
+        robot_node = self.combot.getSelf()
+        robot_position = np.array(robot_node.getPosition())
+        robot_rotation = np.array(robot_node.getOrientation()).reshape(3, 3)
+
+        # For Player coordinate transformation;    
+        # Converts global target to local target relative to the robot
+        target_position_global = np.array(target_position)
+        target_position_local = np.dot(robot_rotation.T, (target_position_global - robot_position))
 
         # Solve IK problem to reach target 
         ik_results = self.right_arm_chain.inverse_kinematics(
-            target_position=target_position,  
+            target_position=target_position_local,  
             target_orientation = target_orientation,
             orientation_mode=orientation_mode,
             initial_position=current_angles
             )
         
-        print("IK Results:", ik_results)
+         # Stops collisions with the robot body
+        if not self.is_solution_safe(ik_results):
+            print("Kinematics cancelled...")
+            return
+        
+        print("IK Chain Results:", ik_results)
 
         # Apply IK solution to controllable joints
         for i, angle in enumerate(ik_results):
@@ -186,23 +259,23 @@ class Arm:
             print("Error: PLAYER_WRIST node not found!")
             return [0, 0, 0]
 
-        wrist_pos = wrist_node.getPosition()
-        wrist_rot = wrist_node.getOrientation() 
+        wrist_position = wrist_node.getPosition()
+        wrist_rotation = wrist_node.getOrientation().reshape(3, 3) 
 
         # Define the sword offset (Vector from Wrist -> Tip)
         sword_length = 0.9 
         local_offset = [sword_length, 0.0, 0.0] 
         
         # Apply Rotation: Global_Offset = Rotation_Matrix * Local_Offset
-        dx = wrist_rot[0] * local_offset[0] + wrist_rot[1] * local_offset[1] + wrist_rot[2] * local_offset[2]
-        dy = wrist_rot[3] * local_offset[0] + wrist_rot[4] * local_offset[1] + wrist_rot[5] * local_offset[2]
-        dz = wrist_rot[6] * local_offset[0] + wrist_rot[7] * local_offset[1] + wrist_rot[8] * local_offset[2]
+        dx = wrist_rotation[0] * local_offset[0] + wrist_rotation[1] * local_offset[1] + wrist_rotation[2] * local_offset[2]
+        dy = wrist_rotation[3] * local_offset[0] + wrist_rotation[4] * local_offset[1] + wrist_rotation[5] * local_offset[2]
+        dz = wrist_rotation[6] * local_offset[0] + wrist_rotation[7] * local_offset[1] + wrist_rotation[8] * local_offset[2]
 
         # Compute global sword tip position
         global_sword_tip = [
-            wrist_pos[0] + dx,
-            wrist_pos[1] + dy,
-            wrist_pos[2] + dz
+            wrist_position[0] + dx,
+            wrist_position[1] + dy,
+            wrist_position[2] + dz
         ]
         
         print(f"Global Sword Tip: {global_sword_tip}")
@@ -219,8 +292,3 @@ class Arm:
     def create_right_arm_chain(self):
         """Create IK chain for the right arm from URDF file."""
         return ik.create_right_arm_chain(self.urdf_file)
-
-    def initialise_ikpy_integration(self):
-        """Run the existing IK routine to move arm toward opponent."""
-        return ik.initialise_ikpy_integration(self.right_arm_chain)
-    
