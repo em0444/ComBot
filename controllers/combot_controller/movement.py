@@ -8,6 +8,8 @@ from shared_dataclasses import Position
 
 global combot, target_position
 
+DEBUG = False
+
 def is_in_target_position():
     pass
 
@@ -39,7 +41,7 @@ class Movement:
     def move_to_position(self, counter) -> bool:
         global combot, target_position
         combot, target_position = self.combot_obj, self.target_pos
-        print(self.combot_obj.get_position())
+        
 
         # Non-blocking code: If the counter = 0, then we've not started the turn yet
         if counter == 0:
@@ -47,11 +49,13 @@ class Movement:
             # If it would be less turning to move backwards, then move backwards. Otherwise, go forwards.
             heading_difference = (self.required_heading - combot.localisation.inertial_heading.get_heading_in_radians()) % (2 * math.pi)
             if abs(heading_difference) > math.pi / 2:
-                print("Achieving via backwards movement")
+                if DEBUG:
+                    print("Achieving via backwards movement")
                 self.moving_backwards = True
                 self.required_heading = (self.required_heading + math.pi) % 2 * math.pi
             else:
-                print("Achieving via forwards movement")
+                if DEBUG:
+                    print("Achieving via forwards movement")
                 self.moving_backwards = False
 
             # Point ourselves in the right direction
@@ -72,7 +76,8 @@ class Movement:
             current_position: Position = combot.get_position()
             amount_travelled = math.sqrt((current_position.x - self.starting_position.x) ** 2 + (current_position.y - self.starting_position.y) ** 2)
             if amount_travelled > self.required_distance - 0.1: # Allow 0.1 metres of stopping distance for the motors to brake fully.
-                print("Combot now at destination position... Killing motors.")
+                if DEBUG:
+                    print("Combot now at destination position... Killing motors.")
                 turn(TurnDirection.STOP, 0.0, self.moving_backwards)
                 self.finished = True
                 self.counter_finished_at = counter # Find what step we finished at so we can wait a few steps to stop
@@ -124,9 +129,11 @@ class Movement:
 
 def begin_moving(combot, requested_delta_x, requested_delta_y, should_move_backwards):
     if should_move_backwards:
-        print("Begin moving backwards.")
+        if DEBUG:
+            print("Begin moving backwards.")
     else:
-        print("Begin moving forwards.")
+        if DEBUG:
+            print("Begin moving forwards.")
     left_wheel_joint, right_wheel_joint = combot.getDevice("wheel_left_joint"), combot.getDevice("wheel_right_joint")
     max_wheel_speed = left_wheel_joint.getMaxVelocity()
     speed_to_move = max_wheel_speed * 0.5
@@ -144,7 +151,8 @@ class TurnDirection(Enum):
     STOP = 3
 
 def turn(turning_direction: TurnDirection, turning_speed, moving_backwards) -> None:
-    print(f"Initiating turn in direction {turning_direction}")
+    if DEBUG:
+        print(f"Initiating turn in direction {turning_direction}")
     turn_velocity = abs(combot.getDevice("wheel_left_joint").getMaxVelocity() * turning_speed * 0.1)
 
     wheel_left_velocity = combot.getDevice("wheel_left_joint").getVelocity()
@@ -174,20 +182,23 @@ def turn(turning_direction: TurnDirection, turning_speed, moving_backwards) -> N
     combot.getDevice("wheel_right_joint").setPosition(float('inf'))
     combot.getDevice("wheel_left_joint").setVelocity(wheel_left_velocity)
     combot.getDevice("wheel_right_joint").setVelocity(wheel_right_velocity)
-    print("Done!")
+    if DEBUG:
+        print("Done!")
 
 amount_required_to_slow_down = 0.2
 satisfactory_finished_rotation_distance = 0.15
 
 def rotate_to_heading(target_heading: float, moving_backwards):
-    print(f"rotating to heading {target_heading}")
+    if DEBUG:
+        print(f"rotating to heading {target_heading}")
     current_heading = combot.localisation.inertial_heading.get_heading_in_radians()
     delta_heading = (target_heading - current_heading) % (2 * math.pi)
     if delta_heading > math.pi:
         delta_heading -= 2 * math.pi
 
     if abs(delta_heading) < 0.05:
-        print("Amount to turn too small to execute... skipping.")
+        if DEBUG:
+            print("Amount to turn too small to execute... skipping.")
         return
 
     if delta_heading == 0:
@@ -213,7 +224,8 @@ def rotate_to_heading(target_heading: float, moving_backwards):
             finished_turn_procedure = True
 
     #Wait for the robot to finish the turn before we do anything else
-    print("Waiting for turn to be complete...")
+    if DEBUG:
+        print("Waiting for turn to be complete...")
     max_timesteps_to_wait = 75
     num_timesteps_waited = 0
     while abs(target_heading - current_heading) >= satisfactory_finished_rotation_distance * delta_heading:
@@ -224,6 +236,6 @@ def rotate_to_heading(target_heading: float, moving_backwards):
         current_heading = combot.localisation.inertial_heading.get_heading_in_radians()
         if num_timesteps_waited >= max_timesteps_to_wait: # Maximum wait time to prevent infinite loop
             break
-
-    print(f"Finished Turning... Current heading {current_heading}")
+    if DEBUG:
+        print(f"Finished Turning... Current heading {current_heading}")
 

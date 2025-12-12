@@ -5,6 +5,7 @@ from typing import List, Dict, TYPE_CHECKING
 import matplotlib
 import matplotlib.pyplot
 from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
 
 from combot import Combot
 import fencing_constants as fc
@@ -54,7 +55,7 @@ class Arm:
 
     def _check_urdf(self) -> str:
         """Check if URDF file exists; generate if missing."""
-        filename = "combot_urdf.urdf"
+        filename = "player_urdf.urdf"
         if not os.path.exists(filename):
             print(f"URDF file not found. Generating {filename}...")
             with open(filename, "w") as file:
@@ -105,6 +106,7 @@ class Arm:
             # If any point is inside the body cylinder, the move is unsafe.
             if dist_from_center < SAFE_RADIUS:
                 print(f"Blade segment {alpha*100}% passes through body!")
+                # print("Time elapsed: ", self.combot.get_elapsed_time()) 
                 return False # UNSAFE
 
         return True # SAFE
@@ -122,17 +124,17 @@ class Arm:
         """Calculate the target position on opponent's body for sword strikes."""
         
         # Get opponent node reference
-        opponent_node = self.combot.getFromDef("OPP")
+        opponent_node = self.combot.getFromDef("FENCER")
 
         if opponent_node is None:
             # Try finding it one last time (in case it spawned late)
-            opponent_node = self.combot.getFromDef("OPP")
+            opponent_node = self.combot.getFromDef("FENCER")
             if opponent_node is None:
                 print("Error: Could not find opponent!")
                 return [0, 0, 0]
         
         opponent_position = opponent_node.getPosition()
-        opponent_rotation = opponent_node.getOrientation() 
+        opponent_rotation = opponent_node.getOrientation()
         
         # Calibrated offset that accurately targets opponent's torso for sword strikes
         opponent_offset_local = [0.15, -0.1, 0.35]
@@ -193,11 +195,22 @@ class Arm:
         current_angles = [0] + [angle for angle in arm_angles.values()] + [0]*4
         current_angles = current_angles[:len(self.right_arm_chain.links)]
         print("Initial Chain Position:", current_angles)
+        
+        robot_node = self.combot.getSelf()
+        robot_position = np.array(robot_node.getPosition())
+        robot_rotation = np.array(robot_node.getOrientation()).reshape(3, 3)
 
+        # For Player coordinate transformation;    
+        # Converts global target to local target relative to the robot
+        target_position_global = np.array(target_position)
+        target_position_local = np.dot(robot_rotation.T, (target_position_global - robot_position))
+        target_orientation_global = np.array(target_orientation)
+        target_orientation_local = np.dot(robot_rotation.T, target_orientation_global)
+                
         # Solve IK problem to reach target 
         ik_results = self.right_arm_chain.inverse_kinematics(
-            target_position=target_position,  
-            target_orientation = target_orientation,
+            target_position=target_position_local,  
+            target_orientation = target_orientation_local,
             orientation_mode=orientation_mode,
             initial_position=current_angles
             )
@@ -220,7 +233,7 @@ class Arm:
         print("Moved arm to target position:", target_position)
 
         # Visualise IK solution
-        # self.visualise_ik(current_angles, ik_results, target_position)
+        # self.visualise_ik(current_angles, ik_results, target_position_local)
 
     def visualise_ik(self, current_angles: List[float], 
                       ik_results: List[float], 
@@ -249,7 +262,7 @@ class Arm:
             return [0, 0, 0]
 
         wrist_position = wrist_node.getPosition()
-        wrist_rotation = wrist_node.getOrientation() 
+        wrist_rotation = wrist_node.getOrientation().reshape(3, 3) 
 
         # Define the sword offset (Vector from Wrist -> Tip)
         sword_length = 0.9 

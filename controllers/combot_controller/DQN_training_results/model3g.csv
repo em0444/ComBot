@@ -1,0 +1,101 @@
+episode,length,end reason,reward sum
+0,139,Fencer went out of bounds,-229.0
+1,188,Fencer went out of bounds,-215.0
+2,130,Fencer fell over,-134.5
+3,221,Fencer went out of bounds,-221.5
+4,153,Fencer went out of bounds,-227.5
+5,138,Fencer went out of bounds,-201.5
+6,128,Fencer went out of bounds,-203.0
+7,139,Fencer went out of bounds,-208.0
+8,124,Fencer went out of bounds,-211.0
+9,125,Fencer went out of bounds,-207.5
+10,158,Fencer went out of bounds,-272.5
+11,122,Fencer went out of bounds,-202.0
+12,118,Fencer went out of bounds,-208.0
+13,109,Fencer went out of bounds,-209.0
+14,108,Fencer went out of bounds,-206.5
+15,221,Fencer went out of bounds,-272.0
+16,115,Fencer went out of bounds,-211.0
+17,177,Fencer went out of bounds,-288.0
+18,198,Fencer went out of bounds,-249.0
+19,120,Fencer went out of bounds,-202.5
+20,125,Fencer went out of bounds,-214.0
+21,199,Fencer went out of bounds,-209.0
+22,236,Fencer went out of bounds,-217.5
+23,128,Fencer went out of bounds,-205.5
+24,177,Fencer hit opponent,184.5
+25,195,Fencer went out of bounds,-212.5
+26,182,Fencer went out of bounds,-208.0
+27,137,Fencer went out of bounds,-219.0
+28,223,Fencer got to close to opponent,-52.0
+29,152,Fencer went out of bounds,-227.5
+30,311,Fencer went out of bounds,-313.0
+31,446,Fencer went out of bounds,-375.0
+32,126,Fencer went out of bounds,-211.5
+33,171,Fencer went out of bounds,-207.5
+34,123,Fencer went out of bounds,-213.5
+35,231,Fencer went out of bounds,-228.0
+36,112,Fencer went out of bounds,-201.5
+37,164,Fencer went out of bounds,-211.5
+38,123,Fencer went out of bounds,-205.0
+39,213,Fencer fell over,-105.5
+40,145,Fencer went out of bounds,-205.0
+41,183,Fencer went out of bounds,-239.0
+42,204,Fencer went out of bounds,-219.5
+43,156,Fencer went out of bounds,-201.5
+44,294,Fencer went out of bounds,-287.0
+45,144,Fencer went out of bounds,-212.0
+46,119,Fencer went out of bounds,-210.5
+47,98,Fencer went out of bounds,-214.0
+48,144,Fencer went out of bounds,-210.5
+49,149,Fencer went out of bounds,-201.5
+50,232,Fencer got to close to opponent,-51.5
+51,116,Fencer went out of bounds,-202.0
+52,183,Fencer went out of bounds,-225.5
+53,149,Fencer went out of bounds,-202.0
+54,124,Fencer went out of bounds,-201.5
+55,260,Fencer went out of bounds,-213.5
+56,578,Fencer went out of bounds,-427.0
+57,249,Fencer went out of bounds,-267.0
+58,256,Fencer went out of bounds,-265.0
+59,104,Opponent fell over,198.0
+60,106,Opponent went out of bounds,-11.5
+61,117,Fencer went out of bounds,-213.0
+62,169,Fencer went out of bounds,-207.5
+63,215,Fencer hit opponent,176.5
+64,174,Fencer went out of bounds,-213.0
+65,139,Fencer went out of bounds,-202.5
+66,143,Opponent fell over,172.0
+67,153,Fencer went out of bounds,-223.5
+68,126,Fencer went out of bounds,-206.5
+69,140,Fencer went out of bounds,-208.5
+70,127,Fencer went out of bounds,-209.0
+71,134,Fencer went out of bounds,-202.0
+72,176,Fencer went out of bounds,-210.0
+73,8,Fencer fell over,-103.0
+74,177,Fencer went out of bounds,-222.5
+75,145,Fencer went out of bounds,-216.0
+76,89,Fencer went out of bounds,-244.0
+77,133,Fencer went out of bounds,-209.5
+78,105,Fencer went out of bounds,-201.5
+79,123,Fencer went out of bounds,-202.0
+80,128,Fencer went out of bounds,-203.0
+81,127,Fencer went out of bounds,-219.0
+82,122,Fencer went out of bounds,-202.0
+83,90,Fencer fell over,-102.0
+84,145,Fencer went out of bounds,-201.5
+85,121,Fencer went out of bounds,-201.5
+86,122,Fencer went out of bounds,-201.5
+87,142,Fencer went out of bounds,-202.0
+88,122,Fencer went out of bounds,-201.5
+89,122,Fencer went out of bounds,-201.5
+90,127,Fencer went out of bounds,-202.0
+91,122,Fencer went out of bounds,-201.5
+92,121,Fencer went out of bounds,-201.5
+93,124,Fencer went out of bounds,-201.5
+94,163,Fencer went out of bounds,-201.5
+95,190,Fencer went out of bounds,-201.5
+96,119,Fencer went out of bounds,-201.5
+97,118,Fencer went out of bounds,-202.0
+98,129,Fencer went out of bounds,-202.0
+99,120,Fencer went out of bounds,-201.5

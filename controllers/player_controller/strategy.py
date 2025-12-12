@@ -1,4 +1,4 @@
-from trainer_fencing_actions import lunge, parry_high, parry_low, en_garde, move_backward, move_forward, move_stop
+from fencing_actions import lunge, parry_high, parry_low, en_garde, move_backward, move_forward, move_stop
 import random
 from threading import Thread
 
@@ -111,12 +111,3 @@ strategy9 = mergeStrategies(strategy2,moveForwardStrategy)
 
 strategy10 = templateStrategyCycle([mergeActions(move_forward,lunge),move_stop,mergeActions(move_backward,en_garde),move_stop],1.5)
 
-def strategy11(robot):
-    if not robot.changing_body_state:
-        if distance(robot.currentPosition,robot.enemyPosition) < HITRANGE and robot.body_state != "LUNGE":
-            return mergeActions(lunge,move_forward)
-        if robot.body_state != "EN_GARDE":
-            return en_garde
-    return None
-
-strategy12 = templateStrategyRandom([move_forward,move_backward,move_stop,en_garde,lunge,parry_high,parry_low],[1,1,1,1,1,1,1],1.0)
