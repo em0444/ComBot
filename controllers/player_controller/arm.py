@@ -204,11 +204,13 @@ class Arm:
         # Converts global target to local target relative to the robot
         target_position_global = np.array(target_position)
         target_position_local = np.dot(robot_rotation.T, (target_position_global - robot_position))
-
+        target_orientation_global = np.array(target_orientation)
+        target_orientation_local = np.dot(robot_rotation.T, target_orientation_global)
+                
         # Solve IK problem to reach target 
         ik_results = self.right_arm_chain.inverse_kinematics(
             target_position=target_position_local,  
-            target_orientation = target_orientation,
+            target_orientation = target_orientation_local,
             orientation_mode=orientation_mode,
             initial_position=current_angles
             )
@@ -231,7 +233,7 @@ class Arm:
         print("Moved arm to target position:", target_position)
 
         # Visualise IK solution
-        # self.visualise_ik(current_angles, ik_results, target_position)
+        # self.visualise_ik(current_angles, ik_results, target_position_local)
 
     def visualise_ik(self, current_angles: List[float], 
                       ik_results: List[float], 
