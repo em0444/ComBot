@@ -109,7 +109,6 @@ class Arm:
             # If any point is inside the body cylinder, the move is unsafe.
             if dist_from_center < SAFE_RADIUS:
                 print(f"Blade segment {alpha*100}% passes through body!")
-                # print("Time elapsed: ", self.combot.get_elapsed_time()) 
                 return False # UNSAFE
 
         return True # SAFE
@@ -197,7 +196,7 @@ class Arm:
         # Build angle list matching chain structure
         current_angles = [0] + [angle for angle in arm_angles.values()] + [0]*4
         current_angles = current_angles[:len(self.right_arm_chain.links)]
-        print("Initial Chain Position:", current_angles)
+        # print("Initial Chain Position:", current_angles)
         
         robot_node = self.combot.getSelf()
         robot_position = np.array(robot_node.getPosition())
@@ -223,7 +222,7 @@ class Arm:
             print("Kinematics cancelled...")
             return
         
-        print("IK Chain Results:", ik_results)
+        # print("IK Chain Results:", ik_results)
 
         # Apply IK solution to controllable joints
         for i, angle in enumerate(ik_results):
@@ -342,7 +341,7 @@ class Arm:
                     break
             
                 # Execute strategy
-                move = strat.strategy6(self.combot)
+                move = strat.strategy5(self.combot)
                 
                 if move is not None:
                     # Log the action name if available

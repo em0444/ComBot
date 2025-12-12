@@ -192,7 +192,7 @@ class Arm:
         # Build angle list matching chain structure
         current_angles = [0] + [angle for angle in arm_angles.values()] + [0]*4
         current_angles = current_angles[:len(self.right_arm_chain.links)]
-        print("Initial Chain Position:", current_angles)
+        # print("Initial Chain Position:", current_angles)
 
         # Solve IK problem to reach target 
         ik_results = self.right_arm_chain.inverse_kinematics(
@@ -207,7 +207,7 @@ class Arm:
             print("Kinematics cancelled...")
             return
         
-        print("IK Chain Results:", ik_results)
+        # print("IK Chain Results:", ik_results)
 
         # Apply IK solution to controllable joints
         for i, angle in enumerate(ik_results):
@@ -267,7 +267,7 @@ class Arm:
             wrist_position[2] + dz
         ]
         
-        print(f"Global Sword Tip: {global_sword_tip}")
+        # print(f"Global Sword Tip: {global_sword_tip}")
         return global_sword_tip 
     
     # Position tracking helpers
