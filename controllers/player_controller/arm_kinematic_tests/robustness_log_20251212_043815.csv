@@ -1,0 +1,27 @@
+time,type,details
+0.624,ACTION,en_garde
+0.624,KINEMATIC_ERROR,Safety Violated
+2.016,ACTION,en_garde
+2.016,KINEMATIC_ERROR,Safety Violated
+4.008,ACTION,parry_high
+4.008,KINEMATIC_ERROR,Safety Violated
+6.0,ACTION,parry_low
+6.0,KINEMATIC_ERROR,Safety Violated
+8.016,ACTION,parry_high
+8.016,KINEMATIC_ERROR,Safety Violated
+10.008000000000001,ACTION,parry_high
+10.008000000000001,KINEMATIC_ERROR,Safety Violated
+12.0,ACTION,en_garde
+12.0,KINEMATIC_ERROR,Safety Violated
+14.016,ACTION,en_garde
+14.016,KINEMATIC_ERROR,Safety Violated
+16.008,ACTION,en_garde
+16.008,KINEMATIC_ERROR,Safety Violated
+18.0,ACTION,lunge
+20.016000000000002,ACTION,en_garde
+22.008,ACTION,lunge
+24.0,ACTION,parry_low
+26.016000000000002,ACTION,en_garde
+28.008,ACTION,parry_high
+30.0,ACTION,en_garde
+30.552,SIMULATOR_FAILURE,Exploded

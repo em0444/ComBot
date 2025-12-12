@@ -70,6 +70,11 @@ def main():
     left_wheel.setPosition(float('inf'))
     right_wheel.setPosition(float('inf'))
 
+    # Uncomment for experimental testing 
+    # left_wheel.setVelocity(0)
+    # right_wheel.setVelocity(0)  
+    # arm.run_robustness_test(duration_seconds=180.0)
+
     try:
         while combot.step(timestep) != -1:
 

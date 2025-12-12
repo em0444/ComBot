@@ -1,0 +1,152 @@
+time,type,details
+0.624,ACTION,lunge
+2.016,ACTION,parry_low
+4.008,ACTION,lunge
+6.0,ACTION,en_garde
+6.0,KINEMATIC_ERROR,Safety Violated
+8.016,ACTION,en_garde
+8.016,KINEMATIC_ERROR,Safety Violated
+10.008000000000001,ACTION,en_garde
+10.008000000000001,KINEMATIC_ERROR,Safety Violated
+12.0,ACTION,en_garde
+12.0,KINEMATIC_ERROR,Safety Violated
+14.016,ACTION,parry_low
+14.016,KINEMATIC_ERROR,Safety Violated
+16.008,ACTION,parry_high
+16.008,KINEMATIC_ERROR,Safety Violated
+18.0,ACTION,lunge
+20.016000000000002,ACTION,en_garde
+20.016000000000002,KINEMATIC_ERROR,Safety Violated
+22.008,ACTION,parry_low
+22.008,KINEMATIC_ERROR,Safety Violated
+24.0,ACTION,parry_low
+24.0,KINEMATIC_ERROR,Safety Violated
+26.016000000000002,ACTION,en_garde
+26.016000000000002,KINEMATIC_ERROR,Safety Violated
+28.008,ACTION,parry_high
+28.008,KINEMATIC_ERROR,Safety Violated
+30.0,ACTION,lunge
+32.016,ACTION,parry_low
+34.008,ACTION,en_garde
+34.008,KINEMATIC_ERROR,Safety Violated
+36.0,ACTION,lunge
+38.016,ACTION,parry_low
+38.016,KINEMATIC_ERROR,Safety Violated
+40.008,ACTION,lunge
+42.0,ACTION,parry_high
+42.0,KINEMATIC_ERROR,Safety Violated
+44.016,ACTION,parry_low
+44.016,KINEMATIC_ERROR,Safety Violated
+46.008,ACTION,parry_high
+46.008,KINEMATIC_ERROR,Safety Violated
+48.0,ACTION,parry_high
+48.0,KINEMATIC_ERROR,Safety Violated
+50.016,ACTION,parry_low
+50.016,KINEMATIC_ERROR,Safety Violated
+52.008,ACTION,en_garde
+52.008,KINEMATIC_ERROR,Safety Violated
+54.0,ACTION,parry_low
+54.0,KINEMATIC_ERROR,Safety Violated
+56.016,ACTION,parry_high
+56.016,KINEMATIC_ERROR,Safety Violated
+58.008,ACTION,en_garde
+58.008,KINEMATIC_ERROR,Safety Violated
+60.0,ACTION,parry_high
+60.0,KINEMATIC_ERROR,Safety Violated
+62.016,ACTION,lunge
+64.008,ACTION,lunge
+66.0,ACTION,parry_low
+68.016,ACTION,parry_low
+70.008,ACTION,parry_low
+72.0,ACTION,lunge
+74.016,ACTION,parry_low
+76.008,ACTION,lunge
+78.0,ACTION,parry_low
+80.016,ACTION,parry_high
+80.016,KINEMATIC_ERROR,Safety Violated
+82.008,ACTION,parry_low
+82.008,KINEMATIC_ERROR,Safety Violated
+84.0,ACTION,parry_high
+84.0,KINEMATIC_ERROR,Safety Violated
+86.016,ACTION,parry_low
+86.016,KINEMATIC_ERROR,Safety Violated
+88.008,ACTION,parry_high
+88.008,KINEMATIC_ERROR,Safety Violated
+90.0,ACTION,parry_low
+90.0,KINEMATIC_ERROR,Safety Violated
+92.016,ACTION,parry_low
+92.016,KINEMATIC_ERROR,Safety Violated
+94.008,ACTION,parry_low
+94.008,KINEMATIC_ERROR,Safety Violated
+96.0,ACTION,lunge
+98.016,ACTION,parry_low
+98.016,KINEMATIC_ERROR,Safety Violated
+100.008,ACTION,lunge
+102.0,ACTION,parry_low
+104.016,ACTION,en_garde
+104.016,KINEMATIC_ERROR,Safety Violated
+106.008,ACTION,parry_high
+106.008,KINEMATIC_ERROR,Safety Violated
+108.0,ACTION,parry_low
+108.0,KINEMATIC_ERROR,Safety Violated
+110.016,ACTION,lunge
+112.008,ACTION,parry_high
+112.008,KINEMATIC_ERROR,Safety Violated
+114.0,ACTION,parry_low
+114.0,KINEMATIC_ERROR,Safety Violated
+116.016,ACTION,parry_low
+116.016,KINEMATIC_ERROR,Safety Violated
+118.008,ACTION,parry_low
+118.008,KINEMATIC_ERROR,Safety Violated
+120.0,ACTION,parry_high
+120.0,KINEMATIC_ERROR,Safety Violated
+122.016,ACTION,parry_low
+122.016,KINEMATIC_ERROR,Safety Violated
+124.008,ACTION,parry_low
+124.008,KINEMATIC_ERROR,Safety Violated
+126.0,ACTION,parry_low
+126.0,KINEMATIC_ERROR,Safety Violated
+128.016,ACTION,parry_low
+128.016,KINEMATIC_ERROR,Safety Violated
+130.008,ACTION,parry_high
+130.008,KINEMATIC_ERROR,Safety Violated
+132.0,ACTION,en_garde
+132.0,KINEMATIC_ERROR,Safety Violated
+134.016,ACTION,parry_low
+134.016,KINEMATIC_ERROR,Safety Violated
+136.008,ACTION,parry_low
+136.008,KINEMATIC_ERROR,Safety Violated
+138.0,ACTION,parry_low
+138.0,KINEMATIC_ERROR,Safety Violated
+140.016,ACTION,lunge
+142.008,ACTION,en_garde
+142.008,KINEMATIC_ERROR,Safety Violated
+144.0,ACTION,en_garde
+144.0,KINEMATIC_ERROR,Safety Violated
+146.016,ACTION,parry_low
+146.016,KINEMATIC_ERROR,Safety Violated
+148.008,ACTION,lunge
+150.0,ACTION,parry_low
+152.016,ACTION,parry_high
+152.016,KINEMATIC_ERROR,Safety Violated
+154.008,ACTION,lunge
+156.0,ACTION,en_garde
+156.0,KINEMATIC_ERROR,Safety Violated
+158.016,ACTION,lunge
+160.008,ACTION,parry_low
+160.008,KINEMATIC_ERROR,Safety Violated
+162.0,ACTION,parry_high
+162.0,KINEMATIC_ERROR,Safety Violated
+164.016,ACTION,lunge
+166.008,ACTION,lunge
+168.0,ACTION,parry_low
+170.016,ACTION,parry_high
+170.016,KINEMATIC_ERROR,Safety Violated
+172.008,ACTION,parry_low
+172.008,KINEMATIC_ERROR,Safety Violated
+174.0,ACTION,parry_high
+174.0,KINEMATIC_ERROR,Safety Violated
+176.016,ACTION,lunge
+178.008,ACTION,parry_high
+178.008,KINEMATIC_ERROR,Safety Violated
+180.0,ACTION,lunge
